@@ -261,12 +261,14 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
   .proof-row{flex-direction:column}
 }
 
-.vs-wrap{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;background:#08070a;cursor:col-resize;user-select:none;border:1px solid var(--chrome2)}
+.vs-wrap{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;background:#000;cursor:col-resize;user-select:none}
 .vs-wrap::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,transparent 65%,rgba(0,0,0,0.55) 100%);z-index:2;pointer-events:none}
 .vs-video{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
 #vLeft{clip-path:inset(0 50% 0 0)}
 #vRight{clip-path:inset(0 0 0 50%)}
 .vs-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;pointer-events:none}
+#phLeft{clip-path:inset(0 50% 0 0)}
+#phRight{clip-path:inset(0 0 0 50%);background:rgba(8,7,10,.85)}
 .vs-ph-icon{font-size:20px;opacity:.07;color:var(--text2)}
 .vs-ph-text{font-family:var(--font-data);font-size:9px;color:var(--muted2);letter-spacing:.2em;text-transform:uppercase;opacity:.4}
 .vs-ph-sub{font-family:var(--font-data);font-size:8px;color:var(--muted2);letter-spacing:.1em;opacity:.25}
@@ -309,20 +311,18 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
 .why-right p{font-family:var(--font-lore);font-size:15px;color:var(--muted);line-height:1.88}
 @media(max-width:880px){.why-split{grid-template-columns:1fr;gap:28px}}
 
-.screenshot-slots{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-bottom:32px}
-.ss-slot{aspect-ratio:16/10;background:var(--panel);border:1px solid var(--chrome);position:relative;overflow:hidden;cursor:zoom-in}
-.ss-slot img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s ease,filter .4s ease}
-.ss-slot:hover img{transform:scale(1.03);filter:brightness(1.08)}
-.ss-slot::after{content:'⤢';position:absolute;bottom:10px;right:12px;font-size:14px;color:rgba(200,146,26,.5);opacity:0;transition:opacity .2s;pointer-events:none}
-.ss-slot:hover::after{opacity:1}
-.ss-label-bar{position:absolute;bottom:0;left:0;right:0;padding:10px 14px;background:linear-gradient(to top,rgba(8,7,10,.85),transparent);font-family:var(--font-data);font-size:9px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;opacity:0;transition:opacity .25s}
-.ss-slot:hover .ss-label-bar{opacity:1}
-.lb-overlay{position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;cursor:zoom-out}
+.sc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin-bottom:32px}
+.sc-img{position:relative;overflow:hidden;cursor:pointer;background:var(--panel);border:1px solid var(--chrome)}
+.sc-img img{width:100%;height:auto;display:block;transition:filter .25s}
+.sc-img:hover img{filter:brightness(1.1)}
+.sc-img-lbl{padding:10px 12px;font-family:var(--font-data);font-size:9px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;background:var(--panel);border-top:1px solid var(--chrome)}
+.lb-overlay{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;cursor:zoom-out}
 .lb-overlay.open{opacity:1;pointer-events:all}
-.lb-overlay img{max-width:92vw;max-height:90vh;object-fit:contain;border:1px solid var(--chrome2);box-shadow:0 0 80px rgba(0,0,0,.8)}
-.lb-close{position:absolute;top:20px;right:28px;font-family:var(--font-data);font-size:11px;color:var(--muted);letter-spacing:.2em;cursor:pointer;transition:color .2s}
-.lb-close:hover{color:var(--text2)}
-@media(max-width:880px){.screenshot-slots{grid-template-columns:1fr 1fr}}
+.lb-overlay img{max-width:94vw;max-height:92vh;object-fit:contain;display:block}
+.lb-close{position:absolute;top:20px;right:28px;font-family:var(--font-data);font-size:10px;color:rgba(255,255,255,.3);letter-spacing:.22em;cursor:pointer;transition:color .2s}
+.lb-close:hover{color:rgba(255,255,255,.7)}
+@media(max-width:880px){
+      }
 .r-tease{background:#000;border-top:1px solid #0a0808;padding:100px 44px 120px;text-align:center;position:relative;overflow:hidden}
 .r-tease-bg{position:absolute;inset:0;background:radial-gradient(ellipse 55% 65% at 50% 100%,rgba(80,5,5,.22),transparent);animation:teaseBreath 4s ease-in-out infinite;pointer-events:none}
 @keyframes teaseBreath{
@@ -539,7 +539,6 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
       <div class="vs-ph-text">Video coming soon</div>
       <div class="vs-ph-sub">spine jitter · tearing · liquid mesh</div>
     </div>
-
     <video id="vRight" class="vs-video" autoplay loop muted playsinline>
       <source src="" type="video/mp4">
     </video>
@@ -548,10 +547,8 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
       <div class="vs-ph-text">Video coming soon</div>
       <div class="vs-ph-sub">clean spine · stable hierarchy · correct weights</div>
     </div>
-
     <div class="vs-label vs-label-left" id="vsLabelLeft">Without RigBridge</div>
     <div class="vs-label vs-label-right" id="vsLabelRight">With RigBridge</div>
-
     <div class="vs-divider" id="vsDivider"></div>
     <div class="vs-handle" id="vsHandle"></div>
   </div>
@@ -618,23 +615,23 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
   <div class="sec-label"><span class="sn">05</span> What you get</div>
   <h2 class="sec-heading mb-8">The full scope<br><em>of what's included.</em></h2>
   <p class="sec-sub" style="margin-bottom:32px">The pipeline is one part of it. Below is everything that ships with the addon.</p>
-  <div class="screenshot-slots">
-    <div class="ss-slot" onclick="openLb('screenshot-main.png')">
+  <div class="sc-grid">
+    <div class="sc-img" onclick="openLb('screenshot-main.png')">
       <img src="screenshot-main.png" alt="Main panel">
-      <div class="ss-label-bar">Main Panel</div>
+      <div class="sc-img-lbl">Main Panel</div>
     </div>
-    <div class="ss-slot" onclick="openLb('screenshot-diagnostics.png')">
-      <img src="screenshot-diagnostics.png" alt="Diagnostics panel">
-      <div class="ss-label-bar">Diagnostics — run on a fresh Rigify import</div>
+    <div class="sc-img" onclick="openLb('screenshot-diagnostics.png')">
+      <img src="screenshot-diagnostics.png" alt="Diagnostics">
+      <div class="sc-img-lbl">Diagnostics</div>
     </div>
-    <div class="ss-slot" onclick="openLb('screenshot-export.png')">
+    <div class="sc-img" onclick="openLb('screenshot-export.png')">
       <img src="screenshot-export.png" alt="Export settings">
-      <div class="ss-label-bar">Advanced &amp; Export Settings</div>
+      <div class="sc-img-lbl">Advanced &amp; Export</div>
     </div>
   </div>
 
   <div class="lb-overlay" id="lb" onclick="closeLb()">
-    <div class="lb-close">ESC / CLICK TO CLOSE</div>
+    <div class="lb-close">ESC · CLICK TO CLOSE</div>
     <img id="lb-img" src="" alt="">
   </div>
 
@@ -806,7 +803,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
   var lb = document.getElementById('lb');
   var lbImg = document.getElementById('lb-img');
   window.openLb = function(src){ lbImg.src = src; lb.classList.add('open'); };
-  window.closeLb = function(){ lb.classList.remove('open'); lbImg.src=''; };
+  window.closeLb = function(){ lb.classList.remove('open'); setTimeout(function(){ lbImg.src=''; }, 200); };
   document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeLb(); });
 })();
 
