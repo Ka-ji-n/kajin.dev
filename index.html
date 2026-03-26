@@ -294,13 +294,25 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
 .read-more-btn{font-family:var(--font-data);font-size:10px;color:var(--gold);letter-spacing:.14em;text-transform:uppercase;background:none;border:none;border-bottom:1px solid var(--gold-line);cursor:pointer;padding:0 0 1px;margin-top:20px;transition:color .2s,border-color .2s}
 .read-more-btn:hover{color:var(--text2);border-color:var(--chrome3)}
 
-.included-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px}
-.inc-group{background:var(--panel);border:1px solid var(--chrome);padding:24px 22px;position:relative}
-.inc-group::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold-line),transparent)}
-.inc-label{font-family:var(--font-data);font-size:9px;color:var(--gold);letter-spacing:.2em;text-transform:uppercase;margin-bottom:16px;opacity:.8}
-.inc-list{list-style:none;display:flex;flex-direction:column;gap:8px}
-.inc-list li{font-family:var(--font-lore);font-size:13px;color:var(--muted);line-height:1.5;display:flex;align-items:flex-start;gap:8px}
-.inc-list li::before{content:'';width:3px;height:3px;border-radius:50%;background:var(--muted2);flex-shrink:0;margin-top:7px}
+.included-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;position:relative}
+.inc-group{background:var(--panel);border:1px solid var(--chrome);border-top-color:rgba(200,146,26,.15);padding:24px 22px;position:relative;overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,240,180,.09),0 -1px 0 rgba(0,0,0,.6)}
+/* base dim top line */
+.inc-group::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,rgba(200,146,26,.12),rgba(200,146,26,.05));z-index:1;pointer-events:none}
+/* scan light — each box runs same 8s loop, staggered so beam passes 1→2→3→4 */
+.inc-group::after{content:'';position:absolute;top:0;left:-50px;width:50px;height:2px;background:linear-gradient(90deg,transparent,rgba(200,146,26,.9),transparent);z-index:2;pointer-events:none;animation:box-scan 8s linear infinite}
+@keyframes box-scan{0%{left:-50px;opacity:0}2%{opacity:1}23%{opacity:1}25%{left:calc(100% + 50px);opacity:0}25.1%,100%{left:-50px;opacity:0}}
+.inc-group:nth-child(1)::after{animation-delay:0s}
+.inc-group:nth-child(2)::after{animation-delay:-6s}
+.inc-group:nth-child(3)::after{animation-delay:-4s}
+.inc-group:nth-child(4)::after{animation-delay:-2s}
+/* label — subtle constant warmth, no animation */
+.inc-label{font-family:var(--font-data);font-size:9px;color:var(--gold);letter-spacing:.2em;text-transform:uppercase;margin-bottom:16px;text-shadow:0 0 12px rgba(200,146,26,.3)}
+.inc-list{list-style:none;display:flex;flex-direction:column;gap:9px}
+/* warmer, slightly lighter text — easier to read, less flat */
+.inc-list li{font-family:var(--font-lore);font-size:13px;color:#8e8070;line-height:1.55;display:flex;align-items:flex-start;gap:9px;transition:color .2s}
+.inc-list li:hover{color:#b8a888}
+/* small dim gold diamond instead of grey dot */
+.inc-list li::before{content:'◆';font-size:5px;color:rgba(200,146,26,.3);flex-shrink:0;margin-top:6px;line-height:1}
 @media(max-width:880px){.included-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:520px){.included-grid{grid-template-columns:1fr}}
 
@@ -310,18 +322,28 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
 .why-right p{font-family:var(--font-lore);font-size:15px;color:var(--muted);line-height:1.88}
 @media(max-width:880px){.why-split{grid-template-columns:1fr;gap:28px}}
 
-.sc-grid{display:flex;gap:2px;margin-bottom:32px;height:400px}
-.sc-img{flex:1;position:relative;overflow:hidden;cursor:pointer;background:var(--panel);border:1px solid var(--chrome);transition:flex .5s cubic-bezier(.4,0,.2,1),border-color .3s,filter .3s}
-.sc-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
-.sc-img:hover{border-color:var(--chrome2)}
-.sc-img.expanded{flex:2.8}
-.sc-img.shrunk{flex:0.5;filter:brightness(.5)}
-.sc-img.shrunk .sc-img-lbl{opacity:0}
-.sc-img-lbl{position:absolute;bottom:0;left:0;right:0;padding:10px 14px;background:linear-gradient(to top,rgba(8,7,10,.88),transparent);font-family:var(--font-data);font-size:9px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;transition:opacity .3s}
-.sc-img-hint{display:none}
-@media(max-width:880px){.sc-grid{flex-direction:column;height:auto}.sc-img{min-height:180px}.sc-img.shrunk{flex:0.3}}
-@media(max-width:880px){
-      }
+/* ── Screenshot Viewer ── */
+.rb-viewer{margin-bottom:40px}
+.rb-viewer-panel{position:relative;border:1px solid var(--chrome2);background:#0a090d;overflow:hidden}
+.rb-viewer-panel::before{content:'';position:absolute;top:-2px;left:-2px;width:14px;height:14px;border-top:2px solid var(--gold);border-left:2px solid var(--gold);z-index:4;pointer-events:none}
+.rb-viewer-panel::after{content:'';position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-bottom:2px solid var(--gold);border-right:2px solid var(--gold);opacity:.4;z-index:4;pointer-events:none}
+.rb-top-line{position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold-line) 30%,var(--gold-line) 70%,transparent);opacity:.8;z-index:3;pointer-events:none}
+.rb-viewport{overflow:hidden;width:100%}
+.rb-track{display:flex;transition:transform .52s cubic-bezier(.4,0,.2,1);will-change:transform}
+.rb-slide{min-width:100%;position:relative;display:flex;align-items:center;justify-content:center;padding:28px 28px 28px}
+.rb-slide img{width:100%;height:auto;max-height:580px;object-fit:contain;display:block;user-select:none;pointer-events:none;filter:brightness(.95)}
+.rb-slide-tag{position:absolute;top:12px;left:14px;font-family:var(--font-data);font-size:8px;color:rgba(200,146,26,.45);letter-spacing:.26em;text-transform:uppercase;z-index:2}
+.rb-controls{display:flex;align-items:flex-start;justify-content:space-between;padding:18px 0 0;gap:24px}
+.rb-desc{flex:1;min-width:0}
+.rb-desc-title{font-family:var(--font-body);font-size:15px;font-weight:700;color:var(--text2);margin-bottom:5px}
+.rb-desc-body{font-family:var(--font-lore);font-size:13px;color:var(--muted);line-height:1.65;transition:opacity .3s}
+.rb-nav{display:flex;align-items:center;gap:2px;flex-shrink:0;padding-top:2px}
+.rb-btn{font-family:var(--font-data);font-size:9px;letter-spacing:.18em;color:var(--muted2);background:none;border:1px solid transparent;padding:7px 13px;cursor:pointer;transition:color .2s,border-color .2s,background .2s}
+.rb-btn:hover{color:var(--text);border-color:var(--chrome2);background:var(--panel)}
+.rb-btn.rb-active{color:var(--gold);border-color:var(--gold-line);background:var(--gold-dim)}
+.rb-progress{height:1px;background:var(--chrome);margin-top:14px;position:relative;overflow:hidden}
+.rb-progress-fill{position:absolute;top:0;left:0;height:100%;background:linear-gradient(90deg,var(--gold2),var(--gold));transition:width .52s cubic-bezier(.4,0,.2,1)}
+@media(max-width:880px){.rb-slide{padding:16px}.rb-slide img{max-height:260px}.rb-controls{flex-direction:column-reverse;gap:12px}.rb-nav{align-self:flex-end}}
 .r-tease::before{content:'';position:absolute;top:0;left:0;right:0;height:120px;background:linear-gradient(to bottom,transparent 0%,rgba(0,0,0,.4) 40%,rgba(0,0,0,.85) 75%,#000 100%);pointer-events:none;z-index:1}
   50%{opacity:1;transform:scale(1.08)}
 }
@@ -629,21 +651,43 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
   <div class="sec-label"><span class="sn">05</span> What you get</div>
   <h2 class="sec-heading mb-8">The full scope<br><em>of what's included.</em></h2>
   <p class="sec-sub" style="margin-bottom:32px">The pipeline is one part of it. Below is everything that ships with the addon.</p>
-  <div class="sc-grid" id="scGrid">
-    <div class="sc-img" data-i="0">
-      <img src="screenshot-main.png" alt="Main panel">
-      <div class="sc-img-lbl">Main Panel</div>
+
+  <!-- Screenshot Viewer -->
+  <div class="rb-viewer">
+    <div class="rb-viewer-panel">
+      <div class="rb-top-line"></div>
+      <div class="rb-viewport">
+        <div class="rb-track" id="rbTrack">
+          <div class="rb-slide">
+            <div class="rb-slide-tag">01 · Main Panel</div>
+            <img src="screenshot-main.png" alt="RigBridge main panel — setup, build, bake controls">
+          </div>
+          <div class="rb-slide">
+            <div class="rb-slide-tag">02 · Diagnostics</div>
+            <img src="screenshot-diagnostics.png" alt="RigBridge diagnostics panel — full operator suite">
+          </div>
+          <div class="rb-slide">
+            <div class="rb-slide-tag">03 · Advanced &amp; Export</div>
+            <img src="screenshot-export.png" alt="RigBridge advanced and export panel — engine profiles">
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="sc-img" data-i="1">
-      <img src="screenshot-diagnostics.png" alt="Diagnostics">
-      <div class="sc-img-lbl">Diagnostics</div>
+    <div class="rb-controls">
+      <div class="rb-desc">
+        <div class="rb-desc-title" id="rbDescTitle">Setup &amp; Build Controls</div>
+        <div class="rb-desc-body" id="rbDescBody">Rig target, mesh scope, engine profile, and the main pipeline actions. Everything for the standard workflow in one place.</div>
+      </div>
+      <div class="rb-nav">
+        <button class="rb-btn rb-active" data-slide="0">01</button>
+        <button class="rb-btn" data-slide="1">02</button>
+        <button class="rb-btn" data-slide="2">03</button>
+      </div>
     </div>
-    <div class="sc-img" data-i="2">
-      <img src="screenshot-export.png" alt="Export settings">
-      <div class="sc-img-lbl">Advanced &amp; Export</div>
+    <div class="rb-progress">
+      <div class="rb-progress-fill" id="rbFill" style="width:33.33%"></div>
     </div>
   </div>
-
 
   <div class="included-grid">
     <div class="inc-group">
@@ -690,7 +734,9 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
         <li>Append Quinn reference skeleton from .blend</li>
         <li>UE5 import settings guide</li>
         <li>Bone name remapping</li>
-        <li>Blender 4.2 – 5.1+</li>
+        <li>Operation log with timestamps</li>
+        <li>Recovery report after any failure</li>
+        <li>Setup presets — save and reload configurations</li>
       </ul>
     </div>
   </div>
@@ -811,20 +857,77 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
 
 <script>
 (function(){
-  var grid = document.getElementById('scGrid');
-  if(!grid) return;
-  var imgs = grid.querySelectorAll('.sc-img');
-  imgs.forEach(function(el) {
-    el.addEventListener('click', function() {
-      if(this.classList.contains('expanded')){ 
-        imgs.forEach(function(s){ s.classList.remove('expanded','shrunk'); });
-        return;
-      }
-      imgs.forEach(function(s){ s.classList.remove('expanded','shrunk'); });
-      this.classList.add('expanded');
-      imgs.forEach(function(s){ if(!s.classList.contains('expanded')) s.classList.add('shrunk'); });
+  var track   = document.getElementById('rbTrack');
+  var fill    = document.getElementById('rbFill');
+  var title   = document.getElementById('rbDescTitle');
+  var body    = document.getElementById('rbDescBody');
+  var btns    = document.querySelectorAll('.rb-btn');
+  if(!track) return;
+
+  var slides = [
+    { title:'Setup &amp; Build Controls',
+      body:'Rig target, mesh scope, engine profile, and the main pipeline actions. Everything for the standard workflow in one place.' },
+    { title:'Diagnostic Suite',
+      body:'23 operators covering every pipeline stage. Run individual checks or fire them all in sequence — each one tells you exactly what it found.' },
+    { title:'Advanced &amp; Export',
+      body:'Per-engine FBX profiles, custom axis configuration, batch export, and debug mode. The settings that matter when the standard path needs adjusting.' }
+  ];
+
+  var current = 0;
+  var total   = slides.length;
+  var animating = false;
+
+  function goTo(idx, dir) {
+    if(animating || idx === current) return;
+    animating = true;
+    current = idx;
+
+    // slide the track
+    track.style.transform = 'translateX(-' + (current * 100) + '%)';
+
+    // update progress bar
+    fill.style.width = ((current + 1) / total * 100) + '%';
+
+    // update buttons
+    btns.forEach(function(b){ b.classList.remove('rb-active'); });
+    btns[current].classList.add('rb-active');
+
+    // fade description
+    title.style.opacity = '0';
+    body.style.opacity  = '0';
+    setTimeout(function(){
+      title.innerHTML = slides[current].title;
+      body.innerHTML  = slides[current].body;
+      title.style.transition = 'opacity .3s';
+      body.style.transition  = 'opacity .3s';
+      title.style.opacity = '1';
+      body.style.opacity  = '1';
+      animating = false;
+    }, 200);
+  }
+
+  btns.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      goTo(parseInt(this.dataset.slide));
     });
   });
+
+  // keyboard: ← →
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'ArrowRight') goTo(Math.min(current + 1, total - 1));
+    if(e.key === 'ArrowLeft')  goTo(Math.max(current - 1, 0));
+  });
+
+  // touch swipe
+  var touchStartX = 0;
+  track.addEventListener('touchstart', function(e){ touchStartX = e.touches[0].clientX; }, {passive:true});
+  track.addEventListener('touchend',   function(e){
+    var dx = e.changedTouches[0].clientX - touchStartX;
+    if(Math.abs(dx) > 40) goTo(dx < 0 ? Math.min(current+1,total-1) : Math.max(current-1,0));
+  });
+
+  // init
+  fill.style.width = ((1) / total * 100) + '%';
 })();
 
 (function(){
