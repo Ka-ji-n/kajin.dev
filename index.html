@@ -262,7 +262,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
 }
 
 .vs-wrap{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;background:#0a0a0e;cursor:col-resize;user-select:none;border:1px solid var(--chrome2)}
-.vs-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+.vs-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;transform:scale(1.08);transform-origin:center center}
 #vLeft{clip-path:inset(0 50% 0 0)}
 #vRight{clip-path:inset(0 0 0 50%)}
 .vs-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;pointer-events:none;background:#0a0a0e}
@@ -330,8 +330,8 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
 .rb-top-line{position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold-line) 30%,var(--gold-line) 70%,transparent);opacity:.8;z-index:3;pointer-events:none}
 .rb-viewport{overflow:hidden;width:100%}
 .rb-track{display:flex;transition:transform .52s cubic-bezier(.4,0,.2,1);will-change:transform}
-.rb-slide{min-width:100%;position:relative;display:flex;align-items:center;justify-content:center;padding:28px 28px 28px}
-.rb-slide img{width:100%;height:auto;max-height:580px;object-fit:contain;display:block;user-select:none;pointer-events:none;filter:brightness(.95)}
+.rb-slide{min-width:100%;position:relative;display:flex;align-items:center;justify-content:center;padding:32px 60px 28px}
+.rb-slide img{width:100%;height:auto;max-height:420px;object-fit:contain;display:block;user-select:none;pointer-events:none;filter:brightness(.95)}
 .rb-slide-tag{position:absolute;top:12px;left:14px;font-family:var(--font-data);font-size:8px;color:rgba(200,146,26,.45);letter-spacing:.26em;text-transform:uppercase;z-index:2}
 .rb-controls{display:flex;align-items:flex-start;justify-content:space-between;padding:18px 0 0;gap:24px}
 .rb-desc{flex:1;min-width:0}
@@ -1040,9 +1040,27 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
   window.addEventListener('mouseup',   function(){ dragging=false; });
   window.addEventListener('touchend',  function(){ dragging=false; });
 
-  // keep both videos in sync
+  // robust sync — both videos autoplay, interval keeps them aligned
   if(vl && vr){
-    vl.addEventListener('play', function(){ vr.currentTime=vl.currentTime; vr.play().catch(function(){}); });
+    var syncInterval = null;
+    function startSync(){
+      vr.currentTime = vl.currentTime;
+      vr.play().catch(function(){});
+      if(syncInterval) clearInterval(syncInterval);
+      syncInterval = setInterval(function(){
+        if(Math.abs(vr.currentTime - vl.currentTime) > 0.25){
+          vr.currentTime = vl.currentTime;
+        }
+      }, 1000);
+    }
+    vl.addEventListener('playing', startSync);
+    vr.addEventListener('playing', function(){
+      if(Math.abs(vr.currentTime - vl.currentTime) > 0.25){
+        vr.currentTime = vl.currentTime;
+      }
+    });
+    // kick it if already playing
+    if(!vl.paused) startSync();
   }
 
   function hidePh(vid, phId){
@@ -1056,8 +1074,9 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
   hidePh(vl,'phLeft');
   hidePh(vr,'phRight');
 
-  // if no right video, show left full width
-  var hasRight = vr && vr.querySelector('source') && vr.querySelector('source').getAttribute('src');
+  // detect if right video has a real source
+  var rightSrc = vr && vr.querySelector('source') ? vr.querySelector('source').getAttribute('src') : '';
+  var hasRight = rightSrc && rightSrc.trim() !== '';
   if(!hasRight){
     vl.style.clipPath = 'inset(0 0 0 0)';
     if(document.getElementById('vsDivider')) document.getElementById('vsDivider').style.display='none';
