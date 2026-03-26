@@ -294,19 +294,32 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
 .read-more-btn{font-family:var(--font-data);font-size:10px;color:var(--gold);letter-spacing:.14em;text-transform:uppercase;background:none;border:none;border-bottom:1px solid var(--gold-line);cursor:pointer;padding:0 0 1px;margin-top:20px;transition:color .2s,border-color .2s}
 .read-more-btn:hover{color:var(--text2);border-color:var(--chrome3)}
 
-.included-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;position:relative}
-.inc-group{background:var(--panel);border:1px solid var(--chrome);border-top-color:rgba(200,146,26,.15);padding:24px 22px;position:relative;overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,240,180,.09),0 -1px 0 rgba(0,0,0,.6)}
-/* base dim top line */
-.inc-group::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,rgba(200,146,26,.12),rgba(200,146,26,.05));z-index:1;pointer-events:none}
-/* scan light — each box runs same 8s loop, staggered so beam passes 1→2→3→4 */
-.inc-group::after{content:'';position:absolute;top:0;left:-50px;width:50px;height:2px;background:linear-gradient(90deg,transparent,rgba(200,146,26,.9),transparent);z-index:2;pointer-events:none;animation:box-scan 8s linear infinite}
-@keyframes box-scan{0%{left:-50px;opacity:0}2%{opacity:1}23%{opacity:1}25%{left:calc(100% + 50px);opacity:0}25.1%,100%{left:-50px;opacity:0}}
+.included-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;position:relative}
+.included-grid::after{content:none}
+.inc-group{
+  background:linear-gradient(180deg,rgba(255,240,180,.04) 0%,rgba(0,0,0,.08) 100%),var(--panel);
+  border:1px solid var(--chrome);
+  border-top:1px solid rgba(200,146,26,.3);
+  border-bottom:1px solid rgba(0,0,0,.5);
+  padding:28px 22px 24px;
+  position:relative;
+  overflow:hidden;
+  box-shadow:
+    inset 0 1px 0 rgba(255,240,160,.07),
+    inset 0 -1px 0 rgba(0,0,0,.4),
+    0 4px 12px rgba(0,0,0,.35);
+}
+/* top-left corner bracket — inside boundary so overflow:hidden doesn't clip it */
+.inc-group::before{content:'';position:absolute;top:0;left:0;width:10px;height:10px;border-top:1px solid rgba(200,146,26,.7);border-left:1px solid rgba(200,146,26,.7);pointer-events:none;z-index:3}
+/* per-box beam — fade out before reset to remove flicker, spread gradient to remove dot */
+.inc-group::after{content:'';position:absolute;top:0;left:-120px;width:120px;height:2px;background:linear-gradient(90deg,transparent 0%,rgba(200,146,26,.5) 30%,rgba(255,210,80,.9) 50%,rgba(200,146,26,.5) 70%,transparent 100%);z-index:2;pointer-events:none;animation:box-scan 12s linear infinite}
+@keyframes box-scan{0%{left:-120px;opacity:1}22%{opacity:1}24%{left:calc(100% + 120px);opacity:0}24.01%,100%{left:-120px;opacity:0}}
 .inc-group:nth-child(1)::after{animation-delay:0s}
-.inc-group:nth-child(2)::after{animation-delay:-6s}
-.inc-group:nth-child(3)::after{animation-delay:-4s}
-.inc-group:nth-child(4)::after{animation-delay:-2s}
-/* label — subtle constant warmth, no animation */
-.inc-label{font-family:var(--font-data);font-size:9px;color:var(--gold);letter-spacing:.2em;text-transform:uppercase;margin-bottom:16px;text-shadow:0 0 12px rgba(200,146,26,.3)}
+.inc-group:nth-child(2)::after{animation-delay:-9s}
+.inc-group:nth-child(3)::after{animation-delay:-6s}
+.inc-group:nth-child(4)::after{animation-delay:-3s}
+/* label — no glow, just clean gold */
+.inc-label{font-family:var(--font-data);font-size:9px;color:var(--gold);letter-spacing:.2em;text-transform:uppercase;margin-bottom:16px}
 .inc-list{list-style:none;display:flex;flex-direction:column;gap:9px}
 /* warmer, slightly lighter text — easier to read, less flat */
 .inc-list li{font-family:var(--font-lore);font-size:13px;color:#8e8070;line-height:1.55;display:flex;align-items:flex-start;gap:9px;transition:color .2s}
@@ -341,8 +354,12 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
 .rb-btn{font-family:var(--font-data);font-size:9px;letter-spacing:.18em;color:var(--muted2);background:none;border:1px solid transparent;padding:7px 13px;cursor:pointer;transition:color .2s,border-color .2s,background .2s}
 .rb-btn:hover{color:var(--text);border-color:var(--chrome2);background:var(--panel)}
 .rb-btn.rb-active{color:var(--gold);border-color:var(--gold-line);background:var(--gold-dim)}
-.rb-progress{height:1px;background:var(--chrome);margin-top:14px;position:relative;overflow:hidden}
+.rb-progress{height:1px;background:var(--chrome);margin-top:14px;position:relative;overflow:visible}
 .rb-progress-fill{position:absolute;top:0;left:0;height:100%;background:linear-gradient(90deg,var(--gold2),var(--gold));transition:width .52s cubic-bezier(.4,0,.2,1)}
+/* pulsing tip dot — calm, slow */
+.rb-progress-fill::after{content:'';position:absolute;top:50%;right:0;transform:translate(50%,-50%);width:3px;height:3px;border-radius:50%;background:var(--gold);box-shadow:0 0 4px 1px rgba(200,146,26,.5);animation:tip-pulse 2.8s ease-in-out infinite;transition:opacity .3s}
+.rb-progress-fill.full::after{opacity:0;animation:none}
+@keyframes tip-pulse{0%,100%{box-shadow:0 0 3px 1px rgba(200,146,26,.35);opacity:.7}50%{box-shadow:0 0 6px 2px rgba(200,146,26,.65);opacity:1}}
 @media(max-width:880px){.rb-slide{padding:16px}.rb-slide img{max-height:260px}.rb-controls{flex-direction:column-reverse;gap:12px}.rb-nav{align-self:flex-end}}
 .r-tease::before{content:'';position:absolute;top:0;left:0;right:0;height:120px;background:linear-gradient(to bottom,transparent 0%,rgba(0,0,0,.4) 40%,rgba(0,0,0,.85) 75%,#000 100%);pointer-events:none;z-index:1}
   50%{opacity:1;transform:scale(1.08)}
@@ -887,6 +904,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
 
     // update progress bar
     fill.style.width = ((current + 1) / total * 100) + '%';
+    fill.classList.toggle('full', current === total - 1);
 
     // update buttons
     btns.forEach(function(b){ b.classList.remove('rb-active'); });
