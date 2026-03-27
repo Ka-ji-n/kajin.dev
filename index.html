@@ -263,7 +263,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
 }
 
 .vs-wrap{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;background:#0a0a0e;cursor:col-resize;user-select:none;border:1px solid var(--chrome2)}
-.vs-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;transform:scale(1.22);transform-origin:center center}
+.vs-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;transform:scale(1.35);transform-origin:center center}
 #vLeft{clip-path:inset(0 50% 0 0)}
 #vRight{clip-path:inset(0 0 0 50%)}
 .vs-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;pointer-events:none;background:#0a0a0e}
@@ -393,8 +393,8 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
     <ul class="nav-links">
       <li><a href="#how">How it works</a></li>
       <li><a href="#diagnostics">Diagnostics</a></li>
-      <li><a href="#about" onclick="event.preventDefault();var el=document.getElementById('about');window.scrollTo({top:el.offsetTop-60,behavior:'smooth'})">About</a></li>
       <li><a href="#pricing" class="buy-nav">Buy — $39</a></li>
+
     </ul>
   </div>
 </nav>
@@ -408,7 +408,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
       <p class="hero-tagline">Your Rigify rig works in Blender. <strong>Getting it into a game engine is where things usually start breaking.</strong></p>
       <p class="hero-sub-line">RigBridge was built to handle that part: clean export rig generation, baking, weight cleanup, and diagnostics when something still goes wrong.</p>
       <div class="hero-btns">
-        <a href="#pricing" class="btn-primary">Buy RigBridge — $39</a>
+        <a href="#pricing" class="btn-primary">Get RigBridge — $39</a>
         <a href="#how" class="btn-ghost">See how it works ↓</a>
       </div>
       <div class="proof-row">
@@ -574,7 +574,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
   <p class="sec-sub" style="margin-bottom:32px">Drag the slider to compare. Left: vanilla Rigify export into UE5. Right: the same rig through RigBridge.</p>
 
   <div class="vs-wrap" id="vsWrap">
-    <video id="vLeft" class="vs-video" autoplay loop muted playsinline>
+    <video id="vLeft" class="vs-video" autoplay loop muted playsinline preload="auto">
       <source src="bugs.mp4" type="video/mp4">
     </video>
     <div class="vs-placeholder" id="phLeft">
@@ -582,7 +582,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
       <div class="vs-ph-text">Video coming soon</div>
       <div class="vs-ph-sub">spine jitter · tearing · liquid mesh</div>
     </div>
-    <video id="vRight" class="vs-video" autoplay loop muted playsinline>
+    <video id="vRight" class="vs-video" autoplay loop muted playsinline preload="auto">
       <source src="clean.mp4" type="video/mp4">
     </video>
     <div class="vs-placeholder" id="phRight">
@@ -874,7 +874,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
       <div class="r-tease-slice">REMEMBERED</div>
       <div class="r-tease-slice">REMEMBERED</div>
     </div>
-    <div class="r-tease-sub">Not ready. Not announced. Coming.</div>
+    <div class="r-tease-sub">Not announced. Coming.</div>
   </div>
 </div>
 
@@ -1103,23 +1103,27 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
       }, 800);
     }
 
-    // Both play independently via autoplay — sync them once both have data
     function tryStart(){
       vl.play().catch(function(){});
       vr.play().catch(function(){});
       startSync();
     }
 
-    if(vl.readyState >= 3 && vr.readyState >= 3){
-      tryStart();
-    } else {
-      var vlReady = false, vrReady = false;
-      function onReady(){ if(vlReady && vrReady) tryStart(); }
-      vl.addEventListener('canplay', function(){ vlReady=true; vl.play().catch(function(){}); onReady(); }, {once:true});
-      vr.addEventListener('canplay', function(){ vrReady=true; vr.play().catch(function(){}); onReady(); }, {once:true});
-      // Fallback — start anyway after 4s even if one video isn't ready
-      setTimeout(tryStart, 4000);
-    }
+    // Try immediately
+    tryStart();
+
+    // Also try on canplay for each independently
+    vl.addEventListener('canplay', function(){ vl.play().catch(function(){}); }, {once:true});
+    vr.addEventListener('canplay', function(){ vr.play().catch(function(){}); }, {once:true});
+
+    // Retry every second for 10s in case GitHub Pages is slow
+    var attempts = 0;
+    var retryInterval = setInterval(function(){
+      attempts++;
+      if(vr.paused) vr.play().catch(function(){});
+      if(vl.paused) vl.play().catch(function(){});
+      if(attempts >= 10) clearInterval(retryInterval);
+    }, 1000);
   }
 
   function hidePh(vid, phId){
