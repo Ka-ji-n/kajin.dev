@@ -131,9 +131,9 @@ section{padding:80px 0;position:relative;z-index:1}
 .ps.ps-done::before{background:rgba(200,146,26,.3)}
 .pipeline.all-lit .ps{background:var(--panel2);border-color:var(--gold-line)}
 .pipeline.all-lit .ps::before{background:var(--gold);box-shadow:0 0 8px rgba(200,146,26,.4)}
-.pipeline-oneclick{display:flex;align-items:center;gap:10px;margin-top:14px;cursor:pointer;padding:0;background:none;border:none;font-family:var(--font-lore);font-size:14px;color:var(--text);font-style:italic;transition:color .2s;user-select:none;width:100%}
-.pipeline-oneclick:hover{color:var(--text2)}
-.pipeline-oneclick.running{pointer-events:none;color:var(--muted)}
+.pipeline-oneclick{display:flex;align-items:center;gap:0;margin-top:10px;cursor:pointer;padding:0;background:none;border:none;font-family:var(--font-lore);font-size:13px;color:var(--muted);font-style:italic;transition:color .2s;user-select:none;width:100%;justify-content:center;}
+.pipeline-oneclick:hover{color:var(--text)}
+.pipeline-oneclick.running{pointer-events:none;color:var(--muted2)}
 
 .wolf{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:72px;align-items:start}
 .ws{padding:36px;position:relative;border:1px solid;overflow:hidden;cursor:pointer;transition:background .22s;user-select:none;min-height:280px}
@@ -392,9 +392,8 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
     <a href="#" class="nav-name">Kajin</a>
     <ul class="nav-links">
       <li><a href="#how">How it works</a></li>
-      <li><a href="#fixes">What it fixes</a></li>
       <li><a href="#diagnostics">Diagnostics</a></li>
-      <li><a href="#about">About</a></li>
+      <li><a href="#about" onclick="event.preventDefault();var el=document.getElementById('about');window.scrollTo({top:el.offsetTop-60,behavior:'smooth'})">About</a></li>
       <li><a href="#pricing" class="buy-nav">Buy — $39</a></li>
     </ul>
   </div>
@@ -503,9 +502,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
       <div class="ps"><div class="ps-n">IV</div><div class="ps-name">Diagnose</div><div class="ps-desc">23 operators. Know exactly what is broken before export.</div><div class="ps-detail">Lives in its own dedicated Debug tab — separate from your main workflow. Quick Checks for common validations. Deep Analysis organised by Spine/Torso, Animation, Weights, and Bone Structure. Each operator tells you exactly what it found and where.</div></div>
       <div class="ps"><div class="ps-n">V</div><div class="ps-name">Export FBX</div><div class="ps-desc">Per-engine settings. Batch export. Custom profile for any pipeline.</div><div class="ps-detail">Built-in profiles for UE5, UE4, Unity, and Godot. Custom profile lets you configure any FBX pipeline manually. Batch export processes all actions with filename sanitization. Debug export mode for isolating problems.</div></div>
     </div>
-    <div style="display:flex;justify-content:center;">
-      <div class="pipeline-oneclick" id="pipelineOneClick">Steps I–III run in sequence with a single <span style="color:var(--gold);font-style:normal;border-bottom:1px solid var(--gold);padding-bottom:1px;">click</span>.</div>
-    </div>
+    <div class="pipeline-oneclick" id="pipelineOneClick">Steps I–III run in sequence with a single&nbsp;<span style="color:var(--gold);font-style:normal;border-bottom:1px solid var(--gold);padding-bottom:1px;">click</span>.</div>
   </div>
 </section>
 </div>
@@ -822,7 +819,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
 <div class="orn"><div class="orn-gem"></div></div>
 
 <div class="page">
-<section id="about">
+<section id="about" style="scroll-margin-top:52px;">
   <div class="sec-label"><span class="sn">07</span> About</div>
   <div class="about-layout">
     <div class="about-main panel">
@@ -1118,21 +1115,24 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
     } else {
       var vlReady = false, vrReady = false;
       function onReady(){ if(vlReady && vrReady) tryStart(); }
-      vl.addEventListener('canplay', function(){ vlReady=true; onReady(); }, {once:true});
-      vr.addEventListener('canplay', function(){ vrReady=true; onReady(); }, {once:true});
-      // Fallback — start anyway after 2s even if one video isn't ready
-      setTimeout(tryStart, 2000);
+      vl.addEventListener('canplay', function(){ vlReady=true; vl.play().catch(function(){}); onReady(); }, {once:true});
+      vr.addEventListener('canplay', function(){ vrReady=true; vr.play().catch(function(){}); onReady(); }, {once:true});
+      // Fallback — start anyway after 4s even if one video isn't ready
+      setTimeout(tryStart, 4000);
     }
   }
 
   function hidePh(vid, phId){
+    var ph = document.getElementById(phId);
+    if(!ph) return;
     var src = vid && vid.querySelector('source');
-    if(src && src.src){
-      vid.addEventListener('loadeddata', function(){
-        var ph = document.getElementById(phId);
-        if(ph) ph.style.display='none';
-      });
+    if(src && src.getAttribute('src') && src.getAttribute('src').trim() !== ''){
+      // Hide placeholder immediately — don't wait for loadeddata
+      ph.style.display='none';
     }
+    vid.addEventListener('error', function(){
+      ph.style.display='flex';
+    });
   }
   hidePh(vl,'phLeft');
   hidePh(vr,'phRight');
