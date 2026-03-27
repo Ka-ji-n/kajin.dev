@@ -8,7 +8,7 @@
 <meta property="og:title" content="RigBridge — Rigify Export Pipeline for UE5, Unity, Godot">
 <meta property="og:description" content="Stop debugging blind. RigBridge automates your Rigify export pipeline and tells you exactly what broke and where. Built by a developer who traced every failure to its root cause.">
 <meta property="og:type" content="website">
-<meta property="og:image" content="screenshot-diagnostics.png">
+<meta property="og:image" content="https://ka-ji-n.github.io/kajin.dev/screenshot-diagnostics.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="RigBridge — Rigify Export Pipeline for UE5, Unity, Godot">
 <meta name="twitter:description" content="Stop debugging blind. RigBridge automates your Rigify export pipeline and tells you exactly what broke and where.">
@@ -111,8 +111,9 @@ section{padding:80px 0;position:relative;z-index:1}
 .pc h4{font-family:var(--font-body);font-size:17px;font-weight:700;color:var(--text2);margin-bottom:12px;line-height:1.2}
 .pc p{font-family:var(--font-lore);font-size:14px;color:var(--muted);line-height:1.75}
 
+.pipeline-wrap{position:relative}
 .pipeline{display:flex;gap:2px;align-items:stretch}
-.ps{flex:1;background:var(--panel);border:1px solid var(--chrome);padding:28px 22px;position:relative;overflow:hidden;cursor:default;transition:flex .45s cubic-bezier(.4,0,.2,1),background .25s,border-color .25s;min-width:0;min-height:260px}
+.ps{flex:1;background:var(--panel);border:1px solid var(--chrome2);padding:28px 22px;position:relative;overflow:hidden;cursor:default;transition:flex .45s cubic-bezier(.4,0,.2,1),background .25s,border-color .25s;min-width:0;min-height:280px}
 .ps::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold-line),transparent);transition:background .3s,box-shadow .3s}
 .ps.ps-active{flex:2.4;background:var(--panel2);border-color:var(--gold-line)}
 .ps.ps-active::before{background:var(--gold);box-shadow:0 0 12px rgba(200,146,26,.5)}
@@ -124,6 +125,15 @@ section{padding:80px 0;position:relative;z-index:1}
 .ps-desc{font-family:var(--font-lore);font-size:13px;color:var(--muted);line-height:1.68}
 .ps-detail{font-family:var(--font-lore);font-size:12px;color:var(--muted);line-height:1.75;margin-top:14px;padding-top:12px;border-top:1px solid var(--chrome);opacity:0;max-height:0;overflow:hidden;transition:none}
 .ps.ps-active .ps-detail{opacity:1;max-height:260px;transition:opacity .25s .1s,max-height .35s}
+.ps.ps-running{background:var(--panel2);border-color:var(--gold);flex:2.4}
+.ps.ps-running::before{background:var(--gold);box-shadow:0 0 16px rgba(200,146,26,.7)}
+.ps.ps-done{border-color:rgba(200,146,26,.25)}
+.ps.ps-done::before{background:rgba(200,146,26,.3)}
+.pipeline.all-lit .ps{background:var(--panel2);border-color:var(--gold-line)}
+.pipeline.all-lit .ps::before{background:var(--gold);box-shadow:0 0 8px rgba(200,146,26,.4)}
+.pipeline-oneclick{display:flex;align-items:center;gap:10px;margin-top:14px;cursor:pointer;padding:0;background:none;border:none;font-family:var(--font-lore);font-size:14px;color:var(--text);font-style:italic;transition:color .2s;user-select:none;width:100%}
+.pipeline-oneclick:hover{color:var(--text2)}
+.pipeline-oneclick.running{pointer-events:none;color:var(--muted)}
 
 .wolf{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:72px;align-items:start}
 .ws{padding:36px;position:relative;border:1px solid;overflow:hidden;cursor:pointer;transition:background .22s;user-select:none;min-height:280px}
@@ -283,7 +293,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
 .read-more-btn{font-family:var(--font-data);font-size:10px;color:var(--gold);letter-spacing:.14em;text-transform:uppercase;background:none;border:none;border-bottom:1px solid var(--gold-line);cursor:pointer;padding:0 0 1px;margin-top:20px;transition:color .2s,border-color .2s}
 .read-more-btn:hover{color:var(--text2);border-color:var(--chrome3)}
 
-.included-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;position:relative}
+.included-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;position:relative}
 .inc-group{
   background:linear-gradient(180deg,rgba(255,240,180,.04) 0%,rgba(0,0,0,.08) 100%),var(--panel);
   border:1px solid var(--chrome);
@@ -484,13 +494,18 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
 <section id="how">
   <div class="sec-label"><span class="sn">02</span> How it works</div>
   <h2 class="sec-heading mb-16">What RigBridge does.</h2>
-  <p class="sec-sub">Build a clean export rig, bind the mesh, bake the animations, run checks, then export. The difference is that each step is built to tell you what failed when the result is wrong.</p>
-  <div class="pipeline">
-    <div class="ps"><div class="ps-n">I</div><div class="ps-name">Generate Rig</div><div class="ps-desc">Clean DEF-bone export rig from your Rigify setup.</div><div class="ps-detail">Duplicates your Rigify rig keeping only DEF bones. Reparents each to its nearest DEF ancestor. Self-parent guard prevents broken hierarchies. Weighted bone protection keeps any bone with mesh weights regardless of filters. WGT widgets unlinked from outliner.</div></div>
-    <div class="ps"><div class="ps-n">II</div><div class="ps-name">Bind Mesh</div><div class="ps-desc">Armature modifier redirected at rest pose. No deflated mesh.</div><div class="ps-detail">Switches the mesh modifier from Rigify to the export rig at rest pose, so Blender records correct inverse bind matrices. Secondary mesh modes: preserve weights, rigid-lock to nearest bone for props, or ignore.</div></div>
-    <div class="ps"><div class="ps-n">III</div><div class="ps-name">Bake</div><div class="ps-desc">Visual keying every frame. Engine-aware fixes applied post-bake.</div><div class="ps-detail">Bakes all actions or a single selected one. Distributed spine scale applied post-bake for UE5/UE4. Quaternion flip correction walks every fcurve, designed to catch the 360° spin artifacts that commonly appear on arms and feet in engine.</div></div>
-    <div class="ps"><div class="ps-n">IV</div><div class="ps-name">Diagnose</div><div class="ps-desc">20+ operators. Know exactly what is broken before export.</div><div class="ps-detail">Full diagnostic suite covering every pipeline stage. Weight audits, bake verification, pop detection, spine analysis, stage tracing, skeleton compatibility, export readiness. Each operator tells you exactly what it found and where.</div></div>
-    <div class="ps"><div class="ps-n">V</div><div class="ps-name">Export FBX</div><div class="ps-desc">Per-engine settings. Batch export. Custom profile for any pipeline.</div><div class="ps-detail">Built-in profiles for UE5, UE4, Unity, and Godot. Custom profile lets you configure any FBX pipeline manually. Batch export processes all actions with filename sanitization. Debug export mode for isolating problems.</div></div>
+  <p class="sec-sub">Build a clean export rig, bind the mesh, bake the animations, run checks, then export. Each step is built to tell you what failed when the result is wrong.</p>
+  <div class="pipeline-wrap">
+    <div class="pipeline" id="pipelineSteps">
+      <div class="ps"><div class="ps-n">I</div><div class="ps-name">Generate Rig</div><div class="ps-desc">Clean DEF-bone export rig from your Rigify setup.</div><div class="ps-detail">Duplicates your Rigify rig keeping only DEF bones. Reparents each to its nearest DEF ancestor. Self-parent guard prevents broken hierarchies. Weighted bone protection keeps any bone with mesh weights regardless of filters. WGT widgets unlinked from outliner.</div></div>
+      <div class="ps"><div class="ps-n">II</div><div class="ps-name">Bind Mesh</div><div class="ps-desc">Armature modifier redirected at rest pose. No deflated mesh.</div><div class="ps-detail">Switches the mesh modifier from Rigify to the export rig at rest pose, so Blender records correct inverse bind matrices. Secondary mesh modes: preserve weights, rigid-lock to nearest bone for props, or ignore.</div></div>
+      <div class="ps"><div class="ps-n">III</div><div class="ps-name">Bake</div><div class="ps-desc">Visual keying every frame. Engine-aware fixes applied post-bake.</div><div class="ps-detail">Bakes all actions or a single selected one. Distributed spine scale applied post-bake for UE5/UE4 — Unreal-specific, Unity and Godot are not affected. Quaternion flip correction walks every fcurve, catching the 360° spin artifacts that commonly appear on arms and feet in-engine.</div></div>
+      <div class="ps"><div class="ps-n">IV</div><div class="ps-name">Diagnose</div><div class="ps-desc">23 operators. Know exactly what is broken before export.</div><div class="ps-detail">Lives in its own dedicated Debug tab — separate from your main workflow. Quick Checks for common validations. Deep Analysis organised by Spine/Torso, Animation, Weights, and Bone Structure. Each operator tells you exactly what it found and where.</div></div>
+      <div class="ps"><div class="ps-n">V</div><div class="ps-name">Export FBX</div><div class="ps-desc">Per-engine settings. Batch export. Custom profile for any pipeline.</div><div class="ps-detail">Built-in profiles for UE5, UE4, Unity, and Godot. Custom profile lets you configure any FBX pipeline manually. Batch export processes all actions with filename sanitization. Debug export mode for isolating problems.</div></div>
+    </div>
+    <div style="display:flex;justify-content:center;">
+      <div class="pipeline-oneclick" id="pipelineOneClick">Steps I–III run in sequence with a single <span style="color:var(--gold);font-style:normal;border-bottom:1px solid var(--gold);padding-bottom:1px;">click</span>.</div>
+    </div>
   </div>
 </section>
 </div>
@@ -535,7 +550,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
             <div class="fg-desc">DEF-shoulder.L was being assigned as its own parent. Blender silently reparented it to root. One guard — if the DEF equivalent is the bone itself, skip. Shoulder jitter eliminated.</div>
           </div>
           <div class="fg-item">
-            <div class="fg-label">Spine shake — 14 attempts, one fix</div>
+            <div class="fg-label">Spine shake — 14 attempts, one fix (UE5/UE4 only)</div>
             <div class="fg-desc">Rigify bakes 0.926 scale into DEF-spine bones. Concentrated on two bones it's visible. Distributed as 0.926^(1/n) across all DEF-spine bones — ~1% per bone, invisible. Accumulated product is 0.926 exactly. UE5 evaluates identically to Blender.</div>
           </div>
           <div class="fg-item">
@@ -604,38 +619,51 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
     </div>
     <div>
       <div class="diag-featured">
-        <div class="df"><div class="df-name">Stage Tracer</div><div class="df-desc">Traces bone position through every pipeline stage. Reports the first stage where values diverge — this is what confirmed the spine fix was working.</div></div>
-        <div class="df"><div class="df-name">Anim Mismatch</div><div class="df-desc">Export rig vs control rig, per bone per frame. Directly answers why a specific bone is jittering.</div></div>
-        <div class="df"><div class="df-name">Weight Audit</div><div class="df-desc">Bad groups, rogue islands, zero-weight bones. Selects problem vertices in viewport. Auto-fix available.</div></div>
-        <div class="df"><div class="df-name">Bone Pop Detector</div><div class="df-desc">Distinguishes export-only artifacts from real animation pops. Distinguishes between export-side artifacts and real animation motion.</div></div>
-        <div class="df"><div class="df-name">Unreal Readiness</div><div class="df-desc">Full UE5 pre-export checklist — modifiers, scale, root bone, influences, constraints, control bones, object scale.</div></div>
-        <div class="df"><div class="df-name">Spine Bake Analyser</div><div class="df-desc">Mean error and std deviation across all frames on DEF-spine bones. Used to measure the distributed scale fix.</div></div>
+        <div class="df"><div class="df-name">Hierarchy failures</div><div class="df-desc">Self-parent bugs, broken bone chains, wrong inherit_scale — invisible in Blender, broken in UE5. <span style="color:var(--muted2)">→ Validate Rig, Critical Bone Chain Inspector, Skeleton Compat</span></div></div>
+        <div class="df"><div class="df-name">Weight problems</div><div class="df-desc">Stripped weighted bones, rogue islands, micro-weights, missing influences — the mesh collapses or deforms wrong. <span style="color:var(--muted2)">→ Weight Audit, Weighted but Missing, Selected Vert Inspector</span></div></div>
+        <div class="df"><div class="df-name">Bake artifacts</div><div class="df-desc">Export-only pops, quaternion flips, frame coverage gaps — animations that look fine in Blender and break in-engine. <span style="color:var(--muted2)">→ Bone Pop Detector, Deep Bake Verification, Verify Bake</span></div></div>
+        <div class="df"><div class="df-name">Spine &amp; scale</div><div class="df-desc">The 0.926 Rigify scale factor, bendy-bone constraint mismatch, per-frame oscillation on the torso and chest. <span style="color:var(--muted2)">→ Spine Bake Analyser, Stage Tracer, Torso / Shoulder Pop Detector</span></div></div>
+        <div class="df"><div class="df-name">Export failures</div><div class="df-desc">Root bone missing or misplaced, leftover constraints, wrong modifier stack, negative scale on mesh or armature. <span style="color:var(--muted2)">→ Export Readiness, Pre-Bind Safety Check, NLA Pre-Bake Audit</span></div></div>
+        <div class="df"><div class="df-name">Animation artifacts</div><div class="df-desc">360° spin on arms or feet, shoulder jitter, mesh deformation that doesn't match Blender on any frame. <span style="color:var(--muted2)">→ Animation Mismatch, Stage Tracer, Space Solver Shootout</span></div></div>
       </div>
-      <div class="diag-total"><strong>20+</strong> total diagnostic and validation tools included</div>
+      <div class="diag-total"><strong>23</strong> diagnostic and validation tools across Quick Checks and Deep Analysis</div>
     </div>
   </div>
-  <div class="codex-grid">
-    <div class="ce"><div class="ce-name">Stage Tracer</div><div class="ce-desc">traces bone values through every pipeline stage. reports first bad stage.</div></div>
-    <div class="ce"><div class="ce-name">Weight Audit</div><div class="ce-desc">bad groups, islands, zero-weight bones, auto-fix</div></div>
-    <div class="ce"><div class="ce-name">Anim Mismatch</div><div class="ce-desc">export rig vs control rig, per bone per frame</div></div>
-    <div class="ce"><div class="ce-name">Bone Pop Detector</div><div class="ce-desc">export artifact vs real animation pop</div></div>
-    <div class="ce"><div class="ce-name">Spine Bake Analyser</div><div class="ce-desc">mean error + std dev across all frames on DEF-spine bones</div></div>
-    <div class="ce"><div class="ce-name">Unreal Readiness</div><div class="ce-desc">full UE5 pre-export checklist: modifiers, scale, root, influences</div></div>
-    <div class="ce"><div class="ce-name">Bake Verifier</div><div class="ce-desc">keyframe coverage across all actions</div></div>
-    <div class="ce"><div class="ce-name">Skeleton Compat</div><div class="ce-desc">export rig vs Rigify DEF structure</div></div>
-    <div class="ce"><div class="ce-name">Rig Validator</div><div class="ce-desc">full rig structure and constraint audit</div></div>
-    <div class="ce"><div class="ce-name">Critical Bone Chain Inspector</div><div class="ce-desc">spine, shoulder, hip chain + inherit_scale settings</div></div>
-    <div class="ce"><div class="ce-name">Critical Bone Checklist</div><div class="ce-desc">root, pelvis, spine, hips hierarchy and naming</div></div>
-    <div class="ce"><div class="ce-name">Weighted but Missing</div><div class="ce-desc">weighted bones absent from export rig</div></div>
-    <div class="ce"><div class="ce-name">Twist Bone Audit</div><div class="ce-desc">MCH twist bone influence on mesh vertices</div></div>
-    <div class="ce"><div class="ce-name">Bone Scale Validator</div><div class="ce-desc">non-unit scale on any bone pre-export</div></div>
-    <div class="ce"><div class="ce-name">Space Solver Shootout</div><div class="ce-desc">4 space conversion methods, reconstruction error per method</div></div>
-    <div class="ce"><div class="ce-name">Pre-Bind Safety Check</div><div class="ce-desc">confirms weighted bones exist before bind runs</div></div>
-    <div class="ce"><div class="ce-name">NLA Audit</div><div class="ce-desc">NLA track state before baking</div></div>
-    <div class="ce"><div class="ce-name">Selected Vertex Inspector</div><div class="ce-desc">which bones drive selected verts, bake status, twist check</div></div>
-    <div class="ce"><div class="ce-name">Shape Key Checker</div><div class="ce-desc">shape key export compatibility</div></div>
-    <div class="ce"><div class="ce-name">Root Motion Validator</div><div class="ce-desc">root bone motion path, keyframes, world origin</div></div>
+  <p style="font-family:var(--font-data);font-size:9px;color:var(--gold);letter-spacing:.28em;text-transform:uppercase;opacity:.7;margin-bottom:8px;">Quick Checks</p>
+  <div class="codex-grid" style="margin-bottom:2px;">
+    <div class="ce"><div class="ce-name">Validate Rig</div><div class="ce-desc">armature modifier target, duplicate bone names, non-deform bones remaining, deform bone weight coverage, object scale.</div></div>
+    <div class="ce"><div class="ce-name">Weight Audit</div><div class="ce-desc">unweighted vertices, over-influenced, micro-weights, rogue islands. selects problem verts in viewport. auto-fix available.</div></div>
+    <div class="ce"><div class="ce-name">Verify Bake</div><div class="ce-desc">counts bones with actual fcurves. detects if the control rig is the only animated rig (bake failed). shows frame count and bone coverage.</div></div>
+    <div class="ce"><div class="ce-name">Skeleton Compatibility</div><div class="ce-desc">compares rigify rig and game rig bone structure — missing bones, extra bones, parent mismatches, rest-pose position differences.</div></div>
+    <div class="ce"><div class="ce-name">Export Readiness</div><div class="ce-desc">meshes bound, no negative scale, root bone at origin, influence count within limits, no leftover constraints.</div></div>
+    <div class="ce"><div class="ce-name">Shape Key Export Checker</div><div class="ce-desc">armature modifier position, shape key values at export time, basis key order, and naming for engine compatibility.</div></div>
+    <div class="ce"><div class="ce-name">Root Motion Validator</div><div class="ce-desc">identifies moving root (root motion) vs static root (in-place). checks root bone position and keyframe coverage.</div></div>
+    <div class="ce" style="background:var(--panel2);border-color:var(--chrome2);display:flex;flex-direction:column;justify-content:center;gap:6px;">
+      <div style="font-family:var(--font-lore);font-size:13px;font-weight:400;color:var(--gold);line-height:1.2;font-style:italic;">All seven run in one click.</div>
+      <div style="font-family:var(--font-lore);font-size:13px;color:var(--muted);line-height:1.6;">No need to run them individually — <span style="color:var(--text2);font-weight:600;">Run All Checks</span> handles the full quick check suite at once.</div>
+    </div>
   </div>
+
+  <p style="font-family:var(--font-data);font-size:9px;color:var(--gold);letter-spacing:.28em;text-transform:uppercase;opacity:.7;margin-bottom:8px;margin-top:16px;">Deep Analysis</p>
+  <div class="codex-grid">
+    <div class="ce"><div class="ce-name">Stage Tracer</div><div class="ce-desc">forensic stage-by-stage tracer. measures world position error at source → post-bake → post-correction. reports first bad stage.</div></div>
+    <div class="ce"><div class="ce-name">Spine Bake Analyser</div><div class="ce-desc">per-frame analysis of all DEF-spine bones. distinguishes consistent offset (bendy-bone issue) from per-frame jitter (constraint issue).</div></div>
+    <div class="ce"><div class="ce-name">Torso / Shoulder Pop Detector</div><div class="ce-desc">compares source vs export rig. only flags pops that exist in the export rig but not the source — isolates export-side artifacts.</div></div>
+    <div class="ce"><div class="ce-name">Critical Bone Chain Inspector</div><div class="ce-desc">compares source and export rig on parent chain, inherit_scale, rest position, and baked keys for bones most likely causing torso jitter.</div></div>
+    <div class="ce"><div class="ce-name">Animation Mismatch</div><div class="ce-desc">compares source rigify rig vs baked export rig on every frame. finds bones that move differently after export.</div></div>
+    <div class="ce"><div class="ce-name">Bone Pop Detector</div><div class="ce-desc">detects sudden frame-to-frame jumps in the baked export rig. finds shoulder and root popping that appears in UE5 but not Blender.</div></div>
+    <div class="ce"><div class="ce-name">Deep Bake Verification</div><div class="ce-desc">multi-frame bake verification across all actions. finds bake failures that a single-frame check misses.</div></div>
+    <div class="ce"><div class="ce-name">NLA Pre-Bake Audit</div><div class="ce-desc">rigify rig NLA state before baking — muted tracks, solo mode, overlapping strips, stacked active actions.</div></div>
+    <div class="ce"><div class="ce-name">Selected Vert Inspector</div><div class="ce-desc">select vertices in the jittering area and run this. reports which bones drive those verts, whether baked, whether twist bones.</div></div>
+    <div class="ce"><div class="ce-name">Weighted but Missing</div><div class="ce-desc">finds bones that influence the mesh but are missing from the export rig, have no baked keys, or are effectively static.</div></div>
+    <div class="ce"><div class="ce-name">Pre-Bind Safety Check</div><div class="ce-desc">validates the export rig before mesh bind — confirms all weighted DEF bones exist and critical parent chains are intact.</div></div>
+    <div class="ce"><div class="ce-name">Bone Scale Validator</div><div class="ce-desc">bones with animated scale, non-unit scale, or negative scale. unexpected scale keys produce deformation artifacts in UE5.</div></div>
+    <div class="ce"><div class="ce-name">Twist / Helper Bone Audit</div><div class="ce-desc">detects twist and helper bones influencing the mesh. missing or unanimated twist bones cause shoulder and wrist deformation in UE5.</div></div>
+    <div class="ce"><div class="ce-name">Critical Bone Checklist</div><div class="ce-desc">validates that root, pelvis, spine, and hip bones exist, are weighted, and have baked keyframe data.</div></div>
+    <div class="ce"><div class="ce-name">Space Solver Shootout</div><div class="ce-desc">tests every local-space conversion method on a bone and ranks by reconstruction accuracy. tells you which math is correct for your rig.</div></div>
+    <div class="ce"><div class="ce-name">Debug Export</div><div class="ce-desc">exports the active action only with strict no-simplification settings — step=1, simplify=0, deform bones only. for isolating export problems.</div></div>
+  </div>
+</div>
 </section>
 </div>
 
@@ -688,7 +716,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
     <div class="inc-group">
       <div class="inc-label">Pipeline</div>
       <ul class="inc-list">
-        <li>One-click full pipeline — generate, bind, bake in sequence</li>
+        <li>Build + Bake All — Generate Rig, Bind Mesh, Bake in one click</li>
         <li>Export rig generation from any Rigify setup</li>
         <li>Mesh binding at rest pose</li>
         <li>Animation baking with engine-aware post-bake fixes</li>
@@ -713,12 +741,12 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
     <div class="inc-group">
       <div class="inc-label">Diagnostics</div>
       <ul class="inc-list">
-        <li>20+ operators covering every pipeline stage</li>
+        <li>Separate Debug tab — never clutters your workflow</li>
+        <li>Quick Checks — Rig Validator, Weight Audit, Bake Verifier, Export Readiness</li>
+        <li>Deep Analysis — Spine/Torso, Animation, Weights, Bone Structure</li>
         <li>Stage Tracer — finds exactly where errors enter</li>
-        <li>Spine Bake Analyser — mean error across all frames</li>
-        <li>Bone Pop Detector — artifact vs real animation</li>
         <li>Anim Mismatch — export rig vs control rig per frame</li>
-        <li>Unreal Readiness — full UE5 pre-export checklist</li>
+        <li>Bone Pop Detector — artifact vs real animation</li>
         <li>Selected Vertex Inspector — bone influence breakdown</li>
       </ul>
     </div>
@@ -728,10 +756,19 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
         <li>Append Manny reference skeleton from .blend</li>
         <li>Append Quinn reference skeleton from .blend</li>
         <li>UE5 import settings guide</li>
-        <li>Bone name remapping</li>
+        <li>Bone name remapping to UE Mannequin</li>
+        <li>Setup presets — save and reload configurations</li>
         <li>Operation log with timestamps</li>
         <li>Recovery report after any failure</li>
-        <li>Setup presets — save and reload configurations</li>
+      </ul>
+    </div>
+    <div class="inc-group">
+      <div class="inc-label">LOD Generator</div>
+      <ul class="inc-list">
+        <li>Generate LOD meshes automatically from your base mesh</li>
+        <li>Export FBX with all LODs in one pass</li>
+        <li>Configurable LOD levels and decimation</li>
+        <li>Cleanup operator to remove generated LODs</li>
       </ul>
     </div>
   </div>
@@ -748,17 +785,17 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
       <div class="price-amount"><sup>$</sup>39</div>
       <div class="price-note">One-time purchase · All engines · Blender 4.2 – 5.1+</div>
       <ul class="price-includes">
-        <li>Complete Rigify-to-engine pipeline</li>
-        <li>20+ diagnostic operators</li>
-        <li>15+ weight tools</li>
+        <li>Build + Bake All — one-click full pipeline</li>
+        <li>23 diagnostic operators</li>
+        <li>15+ weight tools — normalize, symmetrize, per-vertex influence caps, micro-weight cleanup, audit with auto-fix</li>
         <li>UE5 spine scale handling</li>
         <li>Quaternion flip correction</li>
         <li>Batch FBX export</li>
-        <li>UE5 reference skeleton append</li>
+        <li>LOD Generator — generate and export LOD meshes</li>
         <li>Blender 4.2 – 5.1+</li>
       </ul>
       <a href="https://www.superhive.co" target="_blank" class="btn-primary btn-block">Buy RigBridge — $39</a>
-      <p class="price-disclaimer">If you want to see the full feature set first, keep scrolling. I would rather you know what it does than buy it blind.</p>
+      <p class="price-disclaimer">Thanks for considering the addon!</p>
     </div>
     <div>
       <p class="body-p" style="margin-bottom:28px">Available on multiple platforms. Same addon, same version everywhere.</p>
@@ -927,14 +964,54 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
 })();
 
 (function(){
-  var pipeline=document.querySelector('.pipeline');
-  if(!pipeline)return;
-  var steps=Array.from(pipeline.querySelectorAll('.ps'));
-  var t=null;
-  function setActive(s){clearTimeout(t);steps.forEach(function(p){p.classList.remove('ps-active','ps-inactive');p.classList.add(p===s?'ps-active':'ps-inactive')})}
-  function clear(){t=setTimeout(function(){steps.forEach(function(p){p.classList.remove('ps-active','ps-inactive')})},80)}
-  steps.forEach(function(s){s.addEventListener('mouseenter',function(){setActive(s)});s.addEventListener('mouseleave',clear)});
-  pipeline.addEventListener('mouseleave',function(){clearTimeout(t);steps.forEach(function(p){p.classList.remove('ps-active','ps-inactive')})});
+  var pipeline = document.getElementById('pipelineSteps');
+  if(!pipeline) return;
+  var steps = Array.from(pipeline.querySelectorAll('.ps'));
+  var t = null;
+
+  function setActive(s){
+    clearTimeout(t);
+    steps.forEach(function(p){ p.classList.remove('ps-active','ps-inactive'); p.classList.add(p===s?'ps-active':'ps-inactive'); });
+  }
+  function clearAll(){
+    t = setTimeout(function(){ steps.forEach(function(p){ p.classList.remove('ps-active','ps-inactive'); }); }, 80);
+  }
+
+  steps.forEach(function(s){
+    s.addEventListener('mouseenter', function(){ setActive(s); });
+    s.addEventListener('mouseleave', clearAll);
+  });
+  pipeline.addEventListener('mouseleave', function(){ clearTimeout(t); steps.forEach(function(p){ p.classList.remove('ps-active','ps-inactive'); }); });
+
+  var btn = document.getElementById('pipelineOneClick');
+  if(btn){
+    var running = false;
+    btn.addEventListener('click', function(){
+      if(running) return;
+      running = true;
+      btn.classList.add('running');
+      steps.forEach(function(p){ p.classList.remove('ps-active','ps-inactive','ps-running','ps-done'); });
+
+      var stepDuration = 480, pauseBetween = 80, delay = 0;
+      steps.slice(0,3).forEach(function(step, i){
+        setTimeout(function(){
+          if(i>0) steps[i-1].classList.replace('ps-running','ps-done');
+          step.classList.add('ps-running');
+          if(i===2){
+            setTimeout(function(){
+              step.classList.replace('ps-running','ps-done');
+              setTimeout(function(){
+                steps.forEach(function(p){ p.classList.remove('ps-running','ps-done'); });
+                btn.classList.remove('running');
+                running = false;
+              }, 600);
+            }, stepDuration);
+          }
+        }, delay);
+        delay += stepDuration + pauseBetween;
+      });
+    });
+  }
 })();
 
 (function(){
