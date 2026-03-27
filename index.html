@@ -324,8 +324,15 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
 .rb-viewport{overflow:hidden;width:100%}
 .rb-track{display:flex;transition:transform .52s cubic-bezier(.4,0,.2,1);will-change:transform}
 .rb-slide{min-width:100%;position:relative;display:flex;align-items:center;justify-content:center;padding:32px 60px 28px}
-.rb-slide img{width:100%;height:auto;max-height:420px;object-fit:contain;display:block;user-select:none;pointer-events:none;filter:brightness(.95)}
+.rb-slide img{width:100%;height:auto;max-height:420px;object-fit:contain;display:block;user-select:none;filter:brightness(.95);cursor:zoom-in;transition:filter .2s}
+.rb-slide img:hover{filter:brightness(1)}
 .rb-slide-tag{position:absolute;top:12px;left:14px;font-family:var(--font-data);font-size:8px;color:rgba(200,146,26,.45);letter-spacing:.26em;text-transform:uppercase;z-index:2}
+.rb-expand-hint{position:absolute;bottom:14px;right:16px;font-family:var(--font-data);font-size:8px;color:rgba(200,146,26,.35);letter-spacing:.16em;text-transform:uppercase;pointer-events:none}
+.rb-lightbox{position:fixed;inset:0;z-index:999;background:rgba(5,4,8,.94);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
+.rb-lightbox.open{opacity:1;pointer-events:all}
+.rb-lightbox img{max-width:92vw;max-height:90vh;object-fit:contain;box-shadow:0 0 80px rgba(0,0,0,.8);border:1px solid var(--chrome2)}
+.rb-lightbox-close{position:absolute;top:20px;right:24px;font-family:var(--font-data);font-size:11px;color:var(--muted);letter-spacing:.2em;text-transform:uppercase;cursor:pointer;padding:8px 14px;border:1px solid var(--chrome);transition:color .2s,border-color .2s}
+.rb-lightbox-close:hover{color:var(--text2);border-color:var(--chrome2)}
 .rb-controls{display:flex;align-items:flex-start;justify-content:space-between;padding:18px 0 0;gap:24px}
 .rb-desc{flex:1;min-width:0}
 .rb-desc-title{font-family:var(--font-body);font-size:15px;font-weight:700;color:var(--text2);margin-bottom:5px}
@@ -640,14 +647,17 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
           <div class="rb-slide">
             <div class="rb-slide-tag">01 · Main Panel</div>
             <img src="screenshot-main.png" alt="RigBridge main panel — setup, build, bake controls">
+            <div class="rb-expand-hint">click to expand</div>
           </div>
           <div class="rb-slide">
             <div class="rb-slide-tag">02 · Diagnostics</div>
             <img src="screenshot-diagnostics.png" alt="RigBridge diagnostics panel — full operator suite">
+            <div class="rb-expand-hint">click to expand</div>
           </div>
           <div class="rb-slide">
             <div class="rb-slide-tag">03 · Advanced &amp; Export</div>
             <img src="screenshot-export.png" alt="RigBridge advanced and export panel — engine profiles">
+            <div class="rb-expand-hint">click to expand</div>
           </div>
         </div>
       </div>
@@ -834,6 +844,11 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
   </div>
 </footer>
 
+<div class="rb-lightbox" id="rbLightbox">
+  <span class="rb-lightbox-close" id="rbLightboxClose">close ✕</span>
+  <img id="rbLightboxImg" src="" alt="">
+</div>
+
 <script>
 (function(){
   var track   = document.getElementById('rbTrack');
@@ -888,16 +903,36 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
     });
   });
 
-  document.addEventListener('keydown', function(e){
-    if(e.key === 'ArrowRight') goTo(Math.min(current + 1, total - 1));
-    if(e.key === 'ArrowLeft')  goTo(Math.max(current - 1, 0));
-  });
-
   var touchStartX = 0;
   track.addEventListener('touchstart', function(e){ touchStartX = e.touches[0].clientX; }, {passive:true});
   track.addEventListener('touchend',   function(e){
     var dx = e.changedTouches[0].clientX - touchStartX;
     if(Math.abs(dx) > 40) goTo(dx < 0 ? Math.min(current+1,total-1) : Math.max(current-1,0));
+  });
+
+  var lb    = document.getElementById('rbLightbox');
+  var lbImg = document.getElementById('rbLightboxImg');
+  var lbClose = document.getElementById('rbLightboxClose');
+
+  track.querySelectorAll('.rb-slide img').forEach(function(img){
+    img.addEventListener('click', function(){
+      lbImg.src = this.src;
+      lb.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    });
+  });
+
+  function closeLightbox(){
+    lb.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  lbClose.addEventListener('click', closeLightbox);
+  lb.addEventListener('click', function(e){ if(e.target === lb) closeLightbox(); });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape') closeLightbox();
+    if(e.key === 'ArrowRight') goTo(Math.min(current + 1, total - 1));
+    if(e.key === 'ArrowLeft')  goTo(Math.max(current - 1, 0));
   });
 
 })();
