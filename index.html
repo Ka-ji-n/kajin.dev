@@ -263,9 +263,9 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
 }
 
 .vs-wrap{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;background:#0a0a0e;cursor:col-resize;user-select:none;border:1px solid var(--chrome2)}
-.vs-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;transform:scale(1.35);transform-origin:center center}
-#vLeft{clip-path:inset(0 50% 0 0)}
-#vRight{clip-path:inset(0 0 0 50%)}
+.vs-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;transform:scale(1.35) translateY(4%);transform-origin:center center}
+#vLeft{}
+#vRight{}
 .vs-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;pointer-events:none;background:#0a0a0e}
 .vs-ph-icon{font-size:20px;opacity:.07;color:var(--text2)}
 .vs-ph-text{font-family:var(--font-data);font-size:9px;color:var(--muted2);letter-spacing:.2em;text-transform:uppercase;opacity:.4}
@@ -1074,6 +1074,9 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
     if(lblL) lblL.style.opacity = pct < 18 ? '0' : '1';
     if(lblR) lblR.style.opacity = pct > 82 ? '0' : '1';
   }
+
+  // Apply clip immediately so browser loads both as visible
+  setPos(50);
 
   function getX(e){ return e.touches ? e.touches[0].clientX : e.clientX; }
 
