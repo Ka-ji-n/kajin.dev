@@ -321,8 +321,8 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
 .rb-viewer-panel::before{content:'';position:absolute;top:-2px;left:-2px;width:14px;height:14px;border-top:2px solid var(--gold);border-left:2px solid var(--gold);z-index:4;pointer-events:none}
 .rb-viewer-panel::after{content:'';position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-bottom:2px solid var(--gold);border-right:2px solid var(--gold);opacity:.4;z-index:4;pointer-events:none}
 .rb-top-line{position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold-line) 30%,var(--gold-line) 70%,transparent);opacity:.8;z-index:3;pointer-events:none}
-.rb-expand-btn{position:absolute;top:10px;right:12px;z-index:5;background:rgba(8,7,10,.7);border:1px solid var(--chrome2);color:rgba(200,146,26,.5);font-family:var(--font-data);font-size:9px;letter-spacing:.14em;padding:5px 9px;cursor:pointer;transition:color .2s,border-color .2s,background .2s;user-select:none}
-.rb-expand-btn:hover{color:var(--gold);border-color:var(--gold-line);background:rgba(8,7,10,.95)}
+.rb-expand-btn{position:absolute;top:10px;right:12px;z-index:5;background:rgba(8,7,10,.85);border:1px solid var(--gold-line);color:rgba(200,146,26,.75);font-family:var(--font-data);font-size:9px;letter-spacing:.16em;padding:6px 11px;cursor:pointer;transition:color .2s,border-color .2s,background .2s;user-select:none}
+.rb-expand-btn:hover{color:var(--gold);border-color:var(--gold);background:rgba(8,7,10,.97)}
 .rb-viewport{overflow:hidden;width:100%}
 .rb-track{display:flex;transition:transform .52s cubic-bezier(.4,0,.2,1);will-change:transform}
 .rb-slide{min-width:100%;position:relative;display:flex;align-items:center;justify-content:center;padding:32px 60px 28px}
@@ -330,14 +330,14 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
 .rb-slide img:hover{filter:brightness(1)}
 .rb-viewer.expanded .rb-slide{padding:20px}
 .rb-viewer.expanded .rb-slide img{max-height:82vh}
-.rb-slide-tag{position:absolute;top:12px;left:14px;font-family:var(--font-data);font-size:8px;color:rgba(200,146,26,.45);letter-spacing:.26em;text-transform:uppercase;z-index:2}
+.rb-slide-tag{position:absolute;top:12px;left:14px;font-family:var(--font-data);font-size:8px;color:rgba(200,146,26,.8);letter-spacing:.26em;text-transform:uppercase;z-index:2}
 .rb-controls{display:flex;align-items:flex-start;justify-content:space-between;padding:18px 0 0;gap:24px}
 .rb-desc{flex:1;min-width:0}
 .rb-desc-title{font-family:var(--font-body);font-size:15px;font-weight:700;color:var(--text2);margin-bottom:5px}
-.rb-desc-body{font-family:var(--font-lore);font-size:13px;color:var(--muted);line-height:1.65;transition:opacity .3s}
+.rb-desc-body{font-family:var(--font-lore);font-size:13px;color:var(--text);line-height:1.65;transition:opacity .3s}
 .rb-nav{display:flex;align-items:center;gap:2px;flex-shrink:0;padding-top:2px}
-.rb-btn{font-family:var(--font-data);font-size:9px;letter-spacing:.18em;color:var(--muted2);background:none;border:1px solid transparent;padding:7px 13px;cursor:pointer;transition:color .2s,border-color .2s,background .2s}
-.rb-btn:hover{color:var(--text);border-color:var(--chrome2);background:var(--panel)}
+.rb-btn{font-family:var(--font-data);font-size:9px;letter-spacing:.18em;color:var(--muted);background:none;border:1px solid transparent;padding:7px 13px;cursor:pointer;transition:color .2s,border-color .2s,background .2s}
+.rb-btn:hover{color:var(--text2);border-color:var(--chrome2);background:var(--panel)}
 .rb-btn.rb-active{color:var(--gold);border-color:var(--gold-line);background:var(--gold-dim)}
 .rb-progress{height:1px;background:var(--chrome);margin-top:14px;position:relative;overflow:visible}
 .rb-progress-fill{position:absolute;top:0;left:0;height:100%;background:linear-gradient(90deg,var(--gold2),var(--gold));transition:width .52s cubic-bezier(.4,0,.2,1)}
@@ -345,14 +345,24 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
 .rb-progress-fill.full::after{opacity:0;animation:none}
 @keyframes tip-pulse{0%,100%{box-shadow:0 0 3px 1px rgba(200,146,26,.35);opacity:.7}50%{box-shadow:0 0 6px 2px rgba(200,146,26,.65);opacity:1}}
 @media(max-width:880px){.rb-slide{padding:16px}.rb-slide img{max-height:260px}.rb-controls{flex-direction:column-reverse;gap:12px}.rb-nav{align-self:flex-end}}
-.r-tease::before{content:'';position:absolute;top:0;left:0;right:0;height:120px;background:linear-gradient(to bottom,transparent 0%,rgba(0,0,0,.4) 40%,rgba(0,0,0,.85) 75%,#000 100%);pointer-events:none;z-index:1}
 .body-p{font-family:var(--font-lore);font-size:15px;color:var(--muted);line-height:1.88}
 .r-tease{background:#000;border-top:1px solid #0a0808;padding:100px 44px 120px;text-align:center;position:relative;overflow:hidden}
 .r-tease-bg{position:absolute;inset:0;background:radial-gradient(ellipse 55% 65% at 50% 100%,rgba(80,5,5,.22),transparent);animation:teaseBreath 4s ease-in-out infinite;pointer-events:none}
 @keyframes teaseBreath{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.08)}}
+/* scanline overlay */
 .r-tease-line{width:1px;height:48px;background:linear-gradient(to bottom,transparent,rgba(92,10,10,.4));margin:0 auto 40px}
 .r-tease-label{font-family:var(--font-data);font-size:9px;color:#1e0e0e;letter-spacing:.3em;text-transform:uppercase;margin-bottom:20px}
-.r-tease-title{font-family:'Cinzel Decorative',serif;font-size:clamp(28px,5vw,56px);color:#1c0808;letter-spacing:.2em;line-height:1;margin-bottom:20px;position:relative;animation:teaseGlitch 7s infinite}
+.r-tease-title{font-family:'Cinzel Decorative',serif;font-size:clamp(28px,5vw,56px);letter-spacing:.2em;line-height:1;margin-bottom:20px;position:relative;display:inline-block;animation:teaseGlitch 7s infinite}
+.r-tease-slice{position:absolute;top:0;left:0;width:100%;color:#1c0808;font-family:'Cinzel Decorative',serif;font-size:inherit;letter-spacing:inherit;line-height:inherit;white-space:nowrap}
+.r-tease-slice:first-child{position:relative;visibility:hidden}
+.r-tease-slice:nth-child(2){clip-path:inset(0 0 78% 0);animation:slice1 6s ease-in-out infinite}
+.r-tease-slice:nth-child(3){clip-path:inset(22% 0 55% 0);animation:slice2 8s ease-in-out infinite}
+.r-tease-slice:nth-child(4){clip-path:inset(45% 0 28% 0);animation:slice3 5s ease-in-out infinite}
+.r-tease-slice:nth-child(5){clip-path:inset(72% 0 0 0);animation:slice4 7s ease-in-out infinite}
+@keyframes slice1{0%,100%{transform:translateX(-9px)}50%{transform:translateX(-16px)}}
+@keyframes slice2{0%,100%{transform:translateX(14px)}50%{transform:translateX(5px)}}
+@keyframes slice3{0%,100%{transform:translateX(-5px)}50%{transform:translateX(-13px)}}
+@keyframes slice4{0%,100%{transform:translateX(11px)}50%{transform:translateX(20px)}}
 @keyframes teaseGlitch{
   0%,89%,100%{text-shadow:0 0 30px rgba(120,8,8,.15);transform:none;filter:none}
   90%{text-shadow:2px 0 0 rgba(180,20,20,.4),-2px 0 0 rgba(180,20,20,.2);transform:translateX(2px);filter:blur(.4px)}
@@ -425,9 +435,9 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
       <h2 class="sec-heading mb-0">Built because<br><em>nothing else worked.</em></h2>
     </div>
     <div class="why-right">
-      <p>I was building a game in UE5 using Rigify characters. When I started bringing animations into the engine, everything that mattered started breaking in ways Blender never showed me clearly: spine tearing, hierarchy issues, export-only artifacts.</p>
-      <p style="margin-top:14px">I tried the tools that already existed. Some helped with the basic pipeline. None of them helped me understand where the failures were actually entering.</p>
-      <p style="margin-top:14px">So I started building something for myself. That became RigBridge. It ended up much larger than I expected — mostly because once I started tracing the failures properly, I kept finding problems that needed real tools instead of guesses.</p>
+      <p>I am building a game in UE5, using Rigify to animate it. When I started bringing animations into the engine, every animation started breaking in ways Blender never showed me clearly: spine tearing, hierarchy issues, export-only artifacts. I've always used Rigify so I was kinda stubborn about using a custom rig pipeline and creating the game rig from scratch and importing it.</p>
+      <p style="margin-top:14px">I tried some tools that already existed but I still ended up with issues. They usually help create the game rig but none of them helped me actually debug what was happening wrong.</p>
+      <p style="margin-top:14px">I got frustrated to the point where I started creating the addon myself. I never planned on releasing it but it became a much larger tool than I was planning on making. I think maybe it has a use for someone in the same situation as me. Or if they just want a faster workflow where you effectively remove the whole hand craft a rig, then a game rig, then transfer each animation — the tool helps with everything. And if you ever stumble upon an issue you've got a very strong debugging tool that will pinpoint what is wrong.</p>
     </div>
   </div>
 </section>
@@ -780,14 +790,13 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
   <div class="about-layout">
     <div class="about-main panel">
       <div class="about-name">Kajin</div>
-      <p>I started working in Blender in 2023. I never really had anything to show for it. I created some small stuff early but never anything I was truly proud of. My goal was to make a video fully in Blender. The project ended up too big in scope and I worked on it on and off for a couple of years with long breaks in between. I always enjoyed creating stuff, and gaming has been my main hobby since I was a small kid.</p>
-      <p>Anyways eventually I started building a game in UE5. I've always used Rigify and know it pretty well, so I was at the point where I could start animating characters for testing. Getting them into the engine was supposed to be straightforward.</p>
+      <p>I started working in Blender in 2023. I never really had anything to show for it. I created some small stuff early but never anything I could truly showcase. My goal was to make a video fully in Blender. The project ended up too big in scope and I worked on it on and off for a couple of years, with long breaks in between (which I will hopefully finish in the future... lol). I always enjoyed creating stuff, and gaming has been my main hobby since I was a kid.</p>
+      <p>Rigify has always been my main way to animate, so when I found out it doesn't play nice with UE5 I got kinda sad. I had already started animating stuff for the game, glad I tested early. When I started bringing animations into the engine every single one was broken in ways Blender never showed me. The issues only appeared in UE5 which makes sense, Blender has no reason to show them. I tried everything, every export setting, every workflow I could find, nothing gave me a clean result. Turns out UE5 reads the skeleton differently and propagates scale values through the bone chain in a way Blender just hides. The results varied but every iteration was bugged in some way, mesh turning liquid, stuttering on every frame, whatever I tried something was always wrong.</p>
       <div class="read-more-wrap">
         <div class="read-more-content">
-          <p>When I found out it wasn't I was looking for any solution. Rigify's internal bone system doesn't translate cleanly to how UE5 evaluates a skeleton. Scale values baked into the deform bones propagate through the whole chain in-engine, causing jitter, tearing, and rotation artifacts that look completely fine in Blender. No error. Nothing obvious to chase.</p>
-          <p>I tried different approaches but none worked as intended, and none gave me any way to understand what was actually going wrong. I then truly got frustrated and decided to build an addon myself. In the long run it would save time. No need to manually build a rig for UE5 every time and hope it isn't broken.</p>
-          <p>The most annoying problem to solve was the jittering and tearing, and in some cases the mesh would become liquid form. It took a long time to trace back to the actual cause: Blender hides it internally but UE5 doesn't. It propagates the scale through the entire spine chain every frame.</p>
-          <p>Whatever this addon earns goes directly back into it. I'll fix any issue that gets reported and take time for community requests. It was just built to be a tool for personal use but it grew way bigger than I expected. I am available for contact at any of my socials.</p>
+          <p>I then decided to try some tools that already existed but I still ended up with their own issues. They usually help create the game rig but none of them helped me actually debug what was going wrong. Which is what I wanted at this point, because nothing seemed to give me a clean mesh with the animations I created.</p>
+          <p>The goal of the tool was to make it so for my own game dev future I get a fast workflow, instead of the manual option I get a working addon that makes the game rig with the animations and no issues, which effectively saves me time on each character I create for my game. Manually doing all this work would take a lot of time I would love to save, and it's just easier.</p>
+          <p>Anyways I'm yapping too much. Whatever this addon earns goes directly back into it. I'll fix any issue that gets reported and take time for community requests with promised support. The game I'm creating is the main project I'm working on, however, so supporting this addon supports the game development. I am available for contact at any of my socials.</p>
         </div>
         <button class="read-more-btn" onclick="this.previousElementSibling.classList.toggle('open');this.textContent=this.previousElementSibling.classList.contains('open')?'Show less ↑':'Read more ↓'">Read more ↓</button>
       </div>
@@ -824,7 +833,13 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
   <div class="r-tease-line"></div>
   <div class="r-tease-inner">
     <div class="r-tease-label">Something else is being built.</div>
-    <div class="r-tease-title">REMEMBERED</div>
+    <div class="r-tease-title">
+      <div class="r-tease-slice">REMEMBERED</div>
+      <div class="r-tease-slice">REMEMBERED</div>
+      <div class="r-tease-slice">REMEMBERED</div>
+      <div class="r-tease-slice">REMEMBERED</div>
+      <div class="r-tease-slice">REMEMBERED</div>
+    </div>
     <div class="r-tease-sub">Not ready. Not announced. Coming.</div>
   </div>
 </div>
@@ -907,9 +922,6 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
   expandBtn.addEventListener('click', function(){
     var expanded = viewer.classList.toggle('expanded');
     expandBtn.textContent = expanded ? '⤡ collapse' : '⤢ expand';
-    if(expanded){
-      viewer.scrollIntoView({behavior:'smooth', block:'start'});
-    }
   });
 
 })();
