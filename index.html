@@ -269,8 +269,9 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
   .included-grid{grid-template-columns:1fr}
 }
 
-.vs-wrap{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;background:#0a0a0e;cursor:col-resize;user-select:none;border:1px solid var(--chrome2)}
-.vs-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;transform:scale(1.35) translateY(4%);transform-origin:center center}
+.vs-wrap{position:relative;width:100%;overflow:hidden;background:#0a0a0e;cursor:pointer;user-select:none;border:1px solid var(--chrome2)}
+.vs-video{display:block;width:100%;height:auto;pointer-events:none;}
+#vRight{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
 .vs-placeholder{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;pointer-events:none;background:#0a0a0e}
 .vs-ph-icon{font-size:20px;opacity:.07;color:var(--text2)}
 .vs-ph-text{font-family:var(--font-data);font-size:9px;color:var(--muted2);letter-spacing:.2em;text-transform:uppercase;opacity:.4}
@@ -278,7 +279,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
 .vs-divider{position:absolute;top:0;bottom:0;width:1px;background:rgba(200,146,26,0.55);transform:translateX(-50%);left:50%;pointer-events:none;z-index:10;box-shadow:0 0 8px rgba(200,146,26,0.25)}
 .vs-divider::after{content:'';position:absolute;left:50%;transform:translateX(-50%);width:1px;height:60px;background:linear-gradient(to bottom,transparent,rgba(200,146,26,0.9),transparent);animation:vs-glow-travel 3s ease-in-out infinite}
 @keyframes vs-glow-travel{0%{top:-60px;opacity:0}20%{opacity:1}80%{opacity:1}100%{top:100%;opacity:0}}
-.vs-handle{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:11;pointer-events:none;width:28px;height:28px;border-radius:50%;background:rgba(8,7,10,0.9);border:1px solid rgba(200,146,26,0.55);display:flex;align-items:center;justify-content:center;box-shadow:0 0 12px rgba(200,146,26,0.2)}
+.vs-handle{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:11;pointer-events:none;width:36px;height:36px;border-radius:50%;background:rgba(8,7,10,0.9);border:1px solid rgba(200,146,26,0.55);display:flex;align-items:center;justify-content:center;box-shadow:0 0 12px rgba(200,146,26,0.2);cursor:col-resize}
 .vs-handle::before{content:'‹ ›';font-family:var(--font-data);font-size:10px;color:rgba(200,146,26,0.7);letter-spacing:1px}
 .vs-label{position:absolute;bottom:20px;font-family:var(--font-data);font-size:9px;letter-spacing:.18em;text-transform:uppercase;z-index:9;pointer-events:none;display:flex;align-items:center;gap:6px}
 .vs-label::before{content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0}
@@ -286,6 +287,19 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
 .vs-label-left::before{background:rgba(180,60,60,0.7)}
 .vs-label-right{right:18px;color:rgba(74,180,120,0.7);flex-direction:row-reverse}
 .vs-label-right::before{background:rgba(74,160,100,0.7)}
+
+/* minimal scrubber above video */
+.vs-scrubber-above{width:100%;height:12px;display:flex;align-items:center;cursor:pointer;margin-bottom:2px;user-select:none}
+.vs-scrubber-above-track{width:100%;height:1px;background:rgba(160,140,110,0.15);position:relative}
+.vs-scrubber-above-fill{position:absolute;top:0;left:0;height:100%;background:rgba(232,216,184,0.5);width:0%;pointer-events:none}
+.vs-scrubber-above:hover .vs-scrubber-above-track{background:rgba(160,140,110,0.3)}
+.vs-scrubber-above:hover .vs-scrubber-above-fill{background:rgba(232,216,184,0.85)}
+
+.vs-pause-hint{display:none}
+
+/* remove old controls bar */
+.vs-controls,.vs-play-btn,.vs-time{display:none}
+
 .vs-captions{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-top:2px}
 .vs-cap{font-family:var(--font-lore);font-size:13px;color:var(--muted);line-height:1.65;padding:14px 18px;font-style:italic;background:var(--panel);border:1px solid var(--chrome)}
 .vs-cap-bad{border-top:2px solid rgba(138,32,32,0.35)}
@@ -579,6 +593,12 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
   <h2 class="sec-heading mb-8">Same rig.<br><em>Different pipeline.</em></h2>
   <p class="sec-sub" style="margin-bottom:32px">Drag the slider to compare. Left: vanilla Rigify export into UE5. Right: the same rig through RigBridge.</p>
 
+  <div class="vs-scrubber-above" id="vsScrubber">
+    <div class="vs-scrubber-above-track">
+      <div class="vs-scrubber-above-fill" id="vsFill"></div>
+    </div>
+  </div>
+
   <div class="vs-wrap" id="vsWrap">
     <video id="vLeft" class="vs-video" autoplay loop muted playsinline preload="auto">
       <source src="bugs.mp4" type="video/mp4">
@@ -600,6 +620,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
     <div class="vs-label vs-label-right" id="vsLabelRight">With RigBridge</div>
     <div class="vs-divider" id="vsDivider"></div>
     <div class="vs-handle" id="vsHandle"></div>
+    <div class="vs-pause-hint" id="vsPauseHint">▶ PLAY</div>
   </div>
 
   <div class="vs-captions">
@@ -1092,12 +1113,23 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
     setPos(((getX(e) - rect.left) / rect.width) * 100);
   }
 
-  wrap.addEventListener('mousedown',  function(e){ dragging=true; onMove(e); });
-  wrap.addEventListener('touchstart', function(e){ dragging=true; onMove(e); },{passive:true});
-  window.addEventListener('mousemove',  onMove);
-  window.addEventListener('touchmove',  onMove, {passive:true});
-  window.addEventListener('mouseup',   function(){ dragging=false; });
-  window.addEventListener('touchend',  function(){ dragging=false; });
+  // Only start divider drag when clicking within 24px of the divider line
+  function nearDivider(e){
+    var rect = wrap.getBoundingClientRect();
+    var divX = rect.left + rect.width * pct / 100;
+    return Math.abs(getX(e) - divX) < 24;
+  }
+
+  wrap.addEventListener('mousedown', function(e){
+    if(nearDivider(e)){ dragging=true; onMove(e); e.preventDefault(); }
+  });
+  wrap.addEventListener('touchstart', function(e){
+    if(nearDivider(e)){ dragging=true; onMove(e); }
+  },{passive:true});
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('touchmove', onMove, {passive:true});
+  window.addEventListener('mouseup',  function(){ setTimeout(function(){ dragging=false; }, 0); });
+  window.addEventListener('touchend', function(){ setTimeout(function(){ dragging=false; }, 0); });
 
   function getSrc(vid){
     var s = vid && vid.querySelector('source');
@@ -1107,62 +1139,24 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
   function showPh(phId){ var p=document.getElementById(phId); if(p) p.style.display='flex'; }
   function hidePh(phId){ var p=document.getElementById(phId); if(p) p.style.display='none'; }
 
-  function tryPlay(vid){
-    vid.play().catch(function(){});
-  }
-
-  // Use fetch HEAD to confirm the file actually exists and is accessible
-  function checkAndPlay(vid, phId, onReady){
+  function setupVideo(vid, phId, onReady){
     var src = getSrc(vid);
     if(!src){ showPh(phId); return; }
 
-    fetch(src, {method:'HEAD'})
-      .then(function(r){
-        if(r.ok){
-          hidePh(phId);
-          if(vid.readyState >= 2){
-            tryPlay(vid);
-            onReady();
-          } else {
-            vid.addEventListener('canplay', function(){
-              tryPlay(vid);
-              onReady();
-            }, {once:true});
-            vid.load(); // trigger load now that we know file exists
-            // safety fallback
-            setTimeout(function(){
-              if(vid.readyState >= 2){ tryPlay(vid); onReady(); }
-              else { showPh(phId); }
-            }, 6000);
-          }
-        } else {
-          showPh(phId);
-        }
-      })
-      .catch(function(){
-        // fetch failed (e.g. CORS) — fall back to letting the video try itself
-        hidePh(phId);
-        vid.addEventListener('canplay', function(){ tryPlay(vid); onReady(); }, {once:true});
-        vid.addEventListener('error',   function(){ showPh(phId); });
-        vid.load();
-        setTimeout(function(){
-          if(vid.readyState < 2) showPh(phId);
-        }, 6000);
-      });
+    vid.addEventListener('canplay', function(){ hidePh(phId); vid.play().catch(function(){}); onReady(); }, {once:true});
+    vid.addEventListener('error', function(){ showPh(phId); });
+    var srcEl = vid.querySelector('source');
+    if(srcEl) srcEl.addEventListener('error', function(){ showPh(phId); });
+    setTimeout(function(){ if(vid.readyState < 2) showPh(phId); }, 8000);
   }
 
-  var rightReady = false;
-
-  checkAndPlay(vl, 'phLeft', function(){});
-  checkAndPlay(vr, 'phRight', function(){
-    rightReady = true;
-    // Right video confirmed working — ensure split is active
+  setupVideo(vl, 'phLeft', function(){});
+  setupVideo(vr, 'phRight', function(){
     setPos(50);
     if(div) div.style.display='';
     if(hdl) hdl.style.display='';
   });
 
-  // If right video src is blank, kill the split immediately
   var rightSrc = getSrc(vr);
   if(!rightSrc){
     vl.style.clipPath = 'none';
@@ -1171,6 +1165,60 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
     if(lblR) lblR.style.display='none';
     if(lblL) lblL.style.display='none';
   }
+
+  // ── PLAYBACK CONTROLS ──────────────────────────────────────────
+  var scrubber  = document.getElementById('vsScrubber');
+  var fill      = document.getElementById('vsFill');
+  var pauseHint = document.getElementById('vsPauseHint');
+  var isPaused  = false;
+  var scrubbing = false;
+
+  function setPaused(p){
+    isPaused = p;
+    if(isPaused){
+      vl.pause(); vr.pause();
+      if(pauseHint) pauseHint.textContent = '▶ PLAY';
+      if(wrap) wrap.classList.add('paused');
+    } else {
+      vl.play().catch(function(){}); vr.play().catch(function(){});
+      if(pauseHint) pauseHint.textContent = '❙❙ PAUSE';
+      if(wrap) wrap.classList.remove('paused');
+    }
+  }
+
+  // Click video to toggle pause (skip if we just dragged divider)
+  wrap.addEventListener('click', function(e){
+    if(dragging) return;
+    setPaused(!isPaused);
+  });
+
+  // Scrubber
+  function scrubTo(e){
+    var rect = scrubber.getBoundingClientRect();
+    var x = e.touches ? e.touches[0].clientX : e.clientX;
+    var p = Math.max(0, Math.min(1, (x - rect.left) / rect.width));
+    var dur = vl.duration || 0;
+    if(!dur) return;
+    var t = p * dur;
+    vl.currentTime = t; vr.currentTime = t;
+    if(fill) fill.style.width = (p*100).toFixed(2)+'%';
+  }
+
+  if(scrubber){
+    scrubber.addEventListener('mousedown',  function(e){ scrubbing=true; scrubTo(e); });
+    scrubber.addEventListener('touchstart', function(e){ scrubbing=true; scrubTo(e); },{passive:true});
+  }
+  window.addEventListener('mousemove', function(e){ if(scrubbing) scrubTo(e); });
+  window.addEventListener('touchmove', function(e){ if(scrubbing) scrubTo(e); },{passive:true});
+  window.addEventListener('mouseup',   function(){ scrubbing=false; });
+  window.addEventListener('touchend',  function(){ scrubbing=false; });
+
+  vl.addEventListener('timeupdate', function(){
+    if(!scrubbing && fill && vl.duration)
+      fill.style.width = (vl.currentTime/vl.duration*100).toFixed(2)+'%';
+    if(vr.readyState >= 2 && Math.abs(vl.currentTime - vr.currentTime) > 0.15)
+      vr.currentTime = vl.currentTime;
+  });
 })();
 </script>
 
