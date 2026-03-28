@@ -1099,40 +1099,76 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
   window.addEventListener('mouseup',   function(){ dragging=false; });
   window.addEventListener('touchend',  function(){ dragging=false; });
 
-  if(vl && vr){
-    function tryPlay(vid){
-      if(vid.readyState >= 2){
-        vid.play().catch(function(){});
-      } else {
-        vid.addEventListener('canplay', function(){ vid.play().catch(function(){}); }, {once:true});
-        setTimeout(function(){ vid.play().catch(function(){}); }, 3000);
-      }
+  // Track which sides have working video
+  var leftLoaded = false, rightLoaded = false;
+
+  function tryPlay(vid){
+    if(vid.readyState >= 2){
+      vid.play().catch(function(){});
+    } else {
+      vid.addEventListener('canplay', function(){ vid.play().catch(function(){}); }, {once:true});
     }
-    tryPlay(vl);
-    tryPlay(vr);
   }
 
-  function hidePh(vid, phId){
+  function setupSide(vid, phId, onSuccess){
     var ph = document.getElementById(phId);
-    if(!ph) return;
-    var src = vid && vid.querySelector('source');
-    if(src && src.getAttribute('src') && src.getAttribute('src').trim() !== ''){
-      ph.style.display='none';
-    }
-    vid.addEventListener('error', function(){ ph.style.display='flex'; });
-  }
-  hidePh(vl,'phLeft');
-  hidePh(vr,'phRight');
+    var srcEl = vid && vid.querySelector('source');
+    var src = srcEl ? srcEl.getAttribute('src') : '';
 
+    // If no src at all, show placeholder immediately
+    if(!src || src.trim() === ''){
+      if(ph) ph.style.display='flex';
+      return;
+    }
+
+    // Hide placeholder optimistically; show it back on any error
+    if(ph) ph.style.display='none';
+
+    vid.addEventListener('canplay', function(){
+      if(ph) ph.style.display='none';
+      onSuccess();
+      tryPlay(vid);
+    }, {once:true});
+
+    vid.addEventListener('error', function(){
+      if(ph) ph.style.display='flex';
+    });
+
+    // Also listen on the source element for network errors
+    if(srcEl){
+      srcEl.addEventListener('error', function(){
+        if(ph) ph.style.display='flex';
+      });
+    }
+
+    // Fallback: if video hasn't loaded after 4s, show placeholder
+    setTimeout(function(){
+      if(vid.readyState < 2){
+        if(ph) ph.style.display='flex';
+      }
+    }, 4000);
+  }
+
+  setupSide(vl, 'phLeft',  function(){ leftLoaded  = true; });
+  setupSide(vr, 'phRight', function(){ rightLoaded = true; updateDivider(); });
+
+  function updateDivider(){
+    if(!rightLoaded){
+      // No right video — show full left (or placeholder), hide controls
+      vl.style.clipPath = 'none';
+      if(div) div.style.display='none';
+      if(hdl) hdl.style.display='none';
+      if(lblR) lblR.style.display='none';
+      if(lblL) lblL.style.display='none';
+    }
+    // If right video loads, setPos(50) already applied the clip paths above
+  }
+
+  // Check right src upfront — if blank, disable split immediately
   var rightSrcEl = vr && vr.querySelector('source');
   var rightSrc = rightSrcEl ? rightSrcEl.getAttribute('src') : '';
-  var hasRight = rightSrc && rightSrc.trim() !== '';
-  if(!hasRight){
-    vl.style.clipPath = 'none';
-    if(div) div.style.display='none';
-    if(hdl) hdl.style.display='none';
-    if(lblR) lblR.style.display='none';
-    if(lblL) lblL.style.display='none';
+  if(!rightSrc || rightSrc.trim() === ''){
+    updateDivider();
   }
 })();
 </script>
