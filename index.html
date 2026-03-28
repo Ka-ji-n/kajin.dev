@@ -112,8 +112,14 @@ section{padding:80px 0;position:relative;z-index:1}
 .pc p{font-family:var(--font-lore);font-size:14px;color:var(--muted);line-height:1.75}
 
 .pipeline-wrap{position:relative}
-.pipeline{display:flex;gap:2px;align-items:stretch}
-.ps{flex:1;background:var(--panel);border:1px solid var(--chrome2);padding:28px 22px;position:relative;overflow:hidden;cursor:default;transition:flex .45s cubic-bezier(.4,0,.2,1),background .25s,border-color .25s;min-width:0;min-height:280px}
+.pipeline-cage{height:320px;overflow:hidden;margin-bottom:0}
+.pipeline{display:flex;gap:2px;align-items:flex-start;height:320px}
+.ps{flex:1;background:var(--panel);border:1px solid var(--chrome);padding:28px 22px;position:relative;overflow:hidden;cursor:default;transition:flex .45s cubic-bezier(.4,0,.2,1),background .25s,border-color .25s;min-width:0;height:320px}
+.pipeline{display:flex;gap:2px;align-items:flex-start}
+.ps.ps-running{background:var(--panel2);border-color:var(--gold);flex:2.4}
+.ps.ps-running::before{background:var(--gold);box-shadow:0 0 16px rgba(200,146,26,.7)}
+.ps.ps-done{border-color:rgba(200,146,26,.25)}
+.ps.ps-done::before{background:rgba(200,146,26,.3)}
 .ps::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold-line),transparent);transition:background .3s,box-shadow .3s}
 .ps.ps-active{flex:2.4;background:var(--panel2);border-color:var(--gold-line)}
 .ps.ps-active::before{background:var(--gold);box-shadow:0 0 12px rgba(200,146,26,.5)}
@@ -125,15 +131,8 @@ section{padding:80px 0;position:relative;z-index:1}
 .ps-desc{font-family:var(--font-lore);font-size:13px;color:var(--muted);line-height:1.68}
 .ps-detail{font-family:var(--font-lore);font-size:12px;color:var(--muted);line-height:1.75;margin-top:14px;padding-top:12px;border-top:1px solid var(--chrome);opacity:0;max-height:0;overflow:hidden;transition:none}
 .ps.ps-active .ps-detail{opacity:1;max-height:260px;transition:opacity .25s .1s,max-height .35s}
-.ps.ps-running{background:var(--panel2);border-color:var(--gold);flex:2.4}
-.ps.ps-running::before{background:var(--gold);box-shadow:0 0 16px rgba(200,146,26,.7)}
-.ps.ps-done{border-color:rgba(200,146,26,.25)}
-.ps.ps-done::before{background:rgba(200,146,26,.3)}
-.pipeline.all-lit .ps{background:var(--panel2);border-color:var(--gold-line)}
-.pipeline.all-lit .ps::before{background:var(--gold);box-shadow:0 0 8px rgba(200,146,26,.4)}
-.pipeline-oneclick{display:flex;align-items:center;gap:0;margin-top:10px;cursor:pointer;padding:0;background:none;border:none;font-family:var(--font-lore);font-size:13px;color:var(--muted);font-style:italic;transition:color .2s;user-select:none;width:100%;justify-content:center;}
+.pipeline-oneclick{display:flex;align-items:center;gap:0;margin-top:18px;cursor:pointer;padding:0;background:none;border:none;font-family:var(--font-lore);font-size:13px;color:var(--muted);font-style:italic;transition:color .2s;user-select:none;width:100%;justify-content:center;}
 .pipeline-oneclick:hover{color:var(--text)}
-.pipeline-oneclick.running{pointer-events:none;color:var(--muted2)}
 
 .wolf{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:72px;align-items:start}
 .ws{padding:36px;position:relative;border:1px solid;overflow:hidden;cursor:pointer;transition:background .22s;user-select:none;min-height:280px}
@@ -158,7 +157,7 @@ section{padding:80px 0;position:relative;z-index:1}
 .ws-summary code{font-family:var(--font-data);font-size:12px;background:rgba(255,255,255,.04);border:1px solid var(--chrome);padding:1px 5px;color:var(--text)}
 .ws-detail{opacity:0;max-height:0;overflow:hidden;transition:none}
 .ws.open .ws-summary{max-height:0;opacity:0;transition:none}
-.ws.open .ws-detail{opacity:1;max-height:700px;transition:opacity .2s,max-height .25s ease}
+.ws.open .ws-detail{opacity:1;max-height:1200px;transition:opacity .2s,max-height .35s ease}
 .detail-block{margin-bottom:18px}
 .detail-block:last-child{margin-bottom:0}
 .detail-label{font-family:var(--font-data);font-size:9px;letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px}
@@ -256,16 +255,22 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
   .diag-featured{grid-template-columns:1fr}
   .codex-grid{grid-template-columns:1fr 1fr}
   .nav-links li:nth-child(1),.nav-links li:nth-child(2){display:none}
+  .vs-captions{grid-template-columns:1fr}
+  .included-grid{grid-template-columns:1fr 1fr}
+  .why-split{grid-template-columns:1fr;gap:28px}
+  .rb-slide{padding:16px}
+  .rb-slide img{max-height:260px}
+  .rb-controls{flex-direction:column-reverse;gap:12px}
+  .rb-nav{align-self:flex-end}
 }
 @media(max-width:520px){
   .codex-grid{grid-template-columns:1fr}
   .proof-row{flex-direction:column}
+  .included-grid{grid-template-columns:1fr}
 }
 
 .vs-wrap{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;background:#0a0a0e;cursor:col-resize;user-select:none;border:1px solid var(--chrome2)}
 .vs-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;transform:scale(1.35) translateY(4%);transform-origin:center center}
-#vLeft{}
-#vRight{}
 .vs-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;pointer-events:none;background:#0a0a0e}
 .vs-ph-icon{font-size:20px;opacity:.07;color:var(--text2)}
 .vs-ph-text{font-family:var(--font-data);font-size:9px;color:var(--muted2);letter-spacing:.2em;text-transform:uppercase;opacity:.4}
@@ -324,7 +329,6 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
 
 #why{padding:56px 0}.why-split{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
 .why-right p{font-family:var(--font-lore);font-size:15px;color:var(--muted);line-height:1.88}
-@media(max-width:880px){.why-split{grid-template-columns:1fr;gap:28px}}
 
 .rb-viewer{margin-bottom:40px}
 .rb-viewer-panel{position:relative;border:1px solid var(--chrome2);background:#0a090d}
@@ -354,7 +358,6 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
 .rb-progress-fill::after{content:'';position:absolute;top:50%;right:0;transform:translate(50%,-50%);width:3px;height:3px;border-radius:50%;background:var(--gold);box-shadow:0 0 4px 1px rgba(200,146,26,.5);animation:tip-pulse 2.8s ease-in-out infinite;transition:opacity .3s}
 .rb-progress-fill.full::after{opacity:0;animation:none}
 @keyframes tip-pulse{0%,100%{box-shadow:0 0 3px 1px rgba(200,146,26,.35);opacity:.7}50%{box-shadow:0 0 6px 2px rgba(200,146,26,.65);opacity:1}}
-@media(max-width:880px){.rb-slide{padding:16px}.rb-slide img{max-height:260px}.rb-controls{flex-direction:column-reverse;gap:12px}.rb-nav{align-self:flex-end}}
 .body-p{font-family:var(--font-lore);font-size:15px;color:var(--muted);line-height:1.88}
 .r-tease{background:#000;border-top:1px solid #0a0808;padding:100px 44px 120px;text-align:center;position:relative;overflow:hidden}
 .r-tease-bg{position:absolute;inset:0;background:radial-gradient(ellipse 55% 65% at 50% 100%,rgba(80,5,5,.22),transparent);animation:teaseBreath 4s ease-in-out infinite;pointer-events:none}
@@ -411,6 +414,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
         <a href="#pricing" class="btn-primary">Get RigBridge — $39</a>
         <a href="#how" class="btn-ghost">See how it works ↓</a>
       </div>
+      <p style="font-family:var(--font-lore);font-size:13px;color:var(--muted2);margin-bottom:20px;font-style:italic;">Ask me questions or look for updates on <a href="https://x.com/Kajjiin" target="_blank" style="color:var(--muted);text-decoration:none;border-bottom:1px solid var(--muted2);">@Kajin</a>.</p>
       <div class="proof-row">
         <div class="proof-item"><span class="proof-val">UE5 · UE4</span><span class="proof-key">Unreal</span></div>
         <div class="proof-item"><span class="proof-val">Unity · Godot</span><span class="proof-key">& any FBX</span></div>
@@ -495,6 +499,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
   <h2 class="sec-heading mb-16">What RigBridge does.</h2>
   <p class="sec-sub">Build a clean export rig, bind the mesh, bake the animations, run checks, then export. Each step is built to tell you what failed when the result is wrong.</p>
   <div class="pipeline-wrap">
+    <div class="pipeline-cage">
     <div class="pipeline" id="pipelineSteps">
       <div class="ps"><div class="ps-n">I</div><div class="ps-name">Generate Rig</div><div class="ps-desc">Clean DEF-bone export rig from your Rigify setup.</div><div class="ps-detail">Duplicates your Rigify rig keeping only DEF bones. Reparents each to its nearest DEF ancestor. Self-parent guard prevents broken hierarchies. Weighted bone protection keeps any bone with mesh weights regardless of filters. WGT widgets unlinked from outliner.</div></div>
       <div class="ps"><div class="ps-n">II</div><div class="ps-name">Bind Mesh</div><div class="ps-desc">Armature modifier redirected at rest pose. No deflated mesh.</div><div class="ps-detail">Switches the mesh modifier from Rigify to the export rig at rest pose, so Blender records correct inverse bind matrices. Secondary mesh modes: preserve weights, rigid-lock to nearest bone for props, or ignore.</div></div>
@@ -502,7 +507,8 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
       <div class="ps"><div class="ps-n">IV</div><div class="ps-name">Diagnose</div><div class="ps-desc">23 operators. Know exactly what is broken before export.</div><div class="ps-detail">Lives in its own dedicated Debug tab — separate from your main workflow. Quick Checks for common validations. Deep Analysis organised by Spine/Torso, Animation, Weights, and Bone Structure. Each operator tells you exactly what it found and where.</div></div>
       <div class="ps"><div class="ps-n">V</div><div class="ps-name">Export FBX</div><div class="ps-desc">Per-engine settings. Batch export. Custom profile for any pipeline.</div><div class="ps-detail">Built-in profiles for UE5, UE4, Unity, and Godot. Custom profile lets you configure any FBX pipeline manually. Batch export processes all actions with filename sanitization. Debug export mode for isolating problems.</div></div>
     </div>
-    <div class="pipeline-oneclick" id="pipelineOneClick">Steps I–III run in sequence with a single&nbsp;<span style="color:var(--gold);font-style:normal;border-bottom:1px solid var(--gold);padding-bottom:1px;">click</span>.</div>
+    </div>
+    <div class="pipeline-oneclick" id="pipelineOneClick">Steps I–III run in sequence with a single&nbsp;<span style="color:var(--gold);font-style:normal;border-bottom:1px solid var(--gold);padding-bottom:1px;pointer-events:none;">click</span>.</div>
   </div>
 </section>
 </div>
@@ -832,7 +838,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
           <p>The goal of the tool was to make it so for my own game dev future I get a fast workflow, instead of the manual option I get a working addon that makes the game rig with the animations and no issues, which effectively saves me time on each character I create for my game. Manually doing all this work would take a lot of time I would love to save, and it's just easier.</p>
           <p>Anyways I'm yapping too much. Whatever this addon earns goes directly back into it. I'll fix any issue that gets reported and take time for community requests with promised support. The game I'm creating is the main project I'm working on, however, so supporting this addon supports the game development. I am available for contact at any of my socials.</p>
         </div>
-        <button class="read-more-btn" onclick="this.previousElementSibling.classList.toggle('open');this.textContent=this.previousElementSibling.classList.contains('open')?'Show less ↑':'Read more ↓'">Read more ↓</button>
+        <button class="read-more-btn" onclick="var c=this.previousElementSibling;var wasOpen=c.classList.contains('open');c.classList.toggle('open');this.textContent=c.classList.contains('open')?'Show less ↑':'Read more ↓';if(!wasOpen){setTimeout(function(){var y=c.getBoundingClientRect().top+window.scrollY-60;window.scrollTo({top:y,behavior:'smooth'});},50);}else{document.getElementById('about').scrollIntoView({behavior:'smooth',block:'start'});}">Read more ↓</button>
       </div>
     </div>
     <div class="about-right">
@@ -883,7 +889,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
     <div class="foot-id"><span>Kajin</span> · RigBridge <span>v1.0.0</span> · Blender 4.2 – 5.1+ · © 2026</div>
     <div class="foot-links">
       <a href="https://github.com/Ka-ji-n" target="_blank">GitHub</a>
-      <a href="https://x.com/Kajjiin" target="_blank">@Kajjiin</a>
+      <a href="https://x.com/Kajjiin" target="_blank">X</a>
       <a href="https://www.youtube.com/@kaj-in" target="_blank">YouTube</a>
     </div>
   </div>
@@ -1094,39 +1100,16 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
   window.addEventListener('touchend',  function(){ dragging=false; });
 
   if(vl && vr){
-    var syncInterval = null;
-
-    function startSync(){
-      if(syncInterval) clearInterval(syncInterval);
-      syncInterval = setInterval(function(){
-        if(vr.paused) vr.play().catch(function(){});
-        if(Math.abs(vr.currentTime - vl.currentTime) > 0.3){
-          vr.currentTime = vl.currentTime;
-        }
-      }, 800);
+    function tryPlay(vid){
+      if(vid.readyState >= 2){
+        vid.play().catch(function(){});
+      } else {
+        vid.addEventListener('canplay', function(){ vid.play().catch(function(){}); }, {once:true});
+        setTimeout(function(){ vid.play().catch(function(){}); }, 3000);
+      }
     }
-
-    function tryStart(){
-      vl.play().catch(function(){});
-      vr.play().catch(function(){});
-      startSync();
-    }
-
-    // Try immediately
-    tryStart();
-
-    // Also try on canplay for each independently
-    vl.addEventListener('canplay', function(){ vl.play().catch(function(){}); }, {once:true});
-    vr.addEventListener('canplay', function(){ vr.play().catch(function(){}); }, {once:true});
-
-    // Retry every second for 10s in case GitHub Pages is slow
-    var attempts = 0;
-    var retryInterval = setInterval(function(){
-      attempts++;
-      if(vr.paused) vr.play().catch(function(){});
-      if(vl.paused) vl.play().catch(function(){});
-      if(attempts >= 10) clearInterval(retryInterval);
-    }, 1000);
+    tryPlay(vl);
+    tryPlay(vr);
   }
 
   function hidePh(vid, phId){
@@ -1134,12 +1117,9 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
     if(!ph) return;
     var src = vid && vid.querySelector('source');
     if(src && src.getAttribute('src') && src.getAttribute('src').trim() !== ''){
-      // Hide placeholder immediately — don't wait for loadeddata
       ph.style.display='none';
     }
-    vid.addEventListener('error', function(){
-      ph.style.display='flex';
-    });
+    vid.addEventListener('error', function(){ ph.style.display='flex'; });
   }
   hidePh(vl,'phLeft');
   hidePh(vr,'phRight');
@@ -1148,13 +1128,11 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
   var rightSrc = rightSrcEl ? rightSrcEl.getAttribute('src') : '';
   var hasRight = rightSrc && rightSrc.trim() !== '';
   if(!hasRight){
-    vl.style.clipPath = 'inset(0 0 0 0)';
+    vl.style.clipPath = 'none';
     if(div) div.style.display='none';
     if(hdl) hdl.style.display='none';
     if(lblR) lblR.style.display='none';
     if(lblL) lblL.style.display='none';
-  } else {
-    setPos(50);
   }
 })();
 </script>
