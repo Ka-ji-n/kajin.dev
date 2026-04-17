@@ -1,0 +1,2 @@
+# kajin.dev
+Personal site
