@@ -832,32 +832,32 @@ footer{border-top:1px solid var(--chrome);padding:28px 0;position:relative;z-ind
       <div class="rb-viewport">
         <div class="rb-track" id="rbTrack">
           <div class="rb-slide">
-            <div class="rb-slide-tag">01 · Pipeline &amp; Setup</div>
+            <div class="rb-slide-tag">01 · In Unreal</div>
+            <img src="UE5_refrencepose.png" alt="Exported RigBridge character loaded in Unreal Engine 5 skeletal mesh viewer with clean hierarchy">
+          </div>
+          <div class="rb-slide">
+            <div class="rb-slide-tag">02 · Pipeline &amp; Setup</div>
             <img src="screenshot-pipeline.png" alt="RigBridge Pipeline tab with Setup fields, Humanoid Unreal Engine 5 profile, and Build + Bake All controls">
           </div>
           <div class="rb-slide">
-            <div class="rb-slide-tag">02 · Animation &amp; Baking</div>
+            <div class="rb-slide-tag">03 · Animation &amp; Baking</div>
             <img src="Screenshot- Export- Animations.png" alt="RigBridge Animation tab showing baked actions list, bake settings, and shape key options">
           </div>
           <div class="rb-slide">
-            <div class="rb-slide-tag">03 · Attachments</div>
+            <div class="rb-slide-tag">04 · Attachments</div>
             <img src="Screenshot - Export - Attachments.png" alt="Samurai character in RigBridge with Attachments tab listing helmet, guards, shoulder armor, and weapon parented to bones">
           </div>
           <div class="rb-slide">
-            <div class="rb-slide-tag">04 · Any Rig</div>
+            <div class="rb-slide-tag">05 · Any Rig</div>
             <img src="Wolf.png" alt="Wolf model with Rigify Quadruped rig exported through RigBridge to Unreal Engine 5">
-          </div>
-          <div class="rb-slide">
-            <div class="rb-slide-tag">05 · Heatmap</div>
-            <img src="Heatmap2.png" alt="RigBridge live weight heatmap updating as the bone is bent">
           </div>
         </div>
       </div>
     </div>
     <div class="rb-controls">
       <div class="rb-desc">
-        <div class="rb-desc-title" id="rbDescTitle">Pipeline &amp; Setup</div>
-        <div class="rb-desc-body" id="rbDescBody">Assign a rig, assign a mesh, pick an engine. Build + Bake + Export runs in one click. Humanoid or Quadruped profiles target UE5, UE4, Unity, Godot, or a fully custom setup.</div>
+        <div class="rb-desc-title" id="rbDescTitle">In Unreal</div>
+        <div class="rb-desc-body" id="rbDescBody">What lands in-engine. Clean skeleton, UE5 bone naming, IK helpers for retargeting, weights intact. No manual fixups after import — this is the payload.</div>
       </div>
       <div class="rb-nav">
         <button class="rb-btn rb-active" data-slide="0">01</button>
@@ -1130,6 +1130,8 @@ function toggleHeatmapExpand(){
   if(!track) return;
 
   var slides = [
+    { title:'In Unreal',
+      body:'What lands in-engine. Clean skeleton, UE5 bone naming, IK helpers for retargeting, weights intact. No manual fixups after import — this is the payload.' },
     { title:'Pipeline &amp; Setup',
       body:'Assign a rig, assign a mesh, pick an engine. Build + Bake + Export runs in one click. Humanoid or Quadruped profiles target UE5, UE4, Unity, Godot, or a fully custom setup.' },
     { title:'Animation &amp; Baking',
@@ -1137,9 +1139,7 @@ function toggleHeatmapExpand(){
     { title:'Attachments',
       body:'Weapons, armor, and props parented to bones are auto-discovered and exported with the character. Toggle each one. Preview the export and reimport-test before you ship.' },
     { title:'Any Rig',
-      body:'Not just humanoids. Quadruped profile handles wolves, felines, and other creatures. Same one-click pipeline: Rigify metarig in, clean game rig out, FBX straight to engine.' },
-    { title:'Heatmap',
-      body:'Covered in detail above. Live per-bone heatmap updates while you bend the bone and paint — deformation feedback without leaving the viewport.' }
+      body:'Not just humanoids. Quadruped profile handles wolves, felines, and other creatures. Same one-click pipeline: Rigify metarig in, clean game rig out, FBX straight to engine.' }
   ];
 
   var current = 0;
