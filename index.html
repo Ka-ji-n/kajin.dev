@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RigBridge — Rig Export & Weight QA Toolkit for Blender | UE5, Unity, Godot</title>
+<meta name="description" content="RigBridge is a Blender addon that exports any rig to game engines through a custom FBX pipeline and ships a deformation stress test that shows you exactly where your weights break. Works with Rigify, Mixamo, and custom rigs. Built for UE5, UE4, Unity, and Godot.">
+<meta property="og:title" content="RigBridge — Rig Export & Weight QA Toolkit for Blender">
+<meta property="og:description" content="Custom FBX pipeline. Deformation stress test. 24 diagnostic tools. Get your rig out of Blender clean, and know your weights are solid before you do.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://ka-ji-n.github.io/kajin.dev/screenshot-diagnostics.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="RigBridge — Rig Export & Weight QA Toolkit for Blender">
+<meta name="twitter:description" content="Custom FBX pipeline. Deformation stress test. 24 diagnostic tools. Get your rig out of Blender clean.">
+<meta name="twitter:creator" content="@Kajjiin">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;0,9..144,900;1,9..144,300;1,9..144,700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Cinzel+Decorative:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#08070a; --panel:#0e0c12; --panel2:#131018;
+  --gold:#c8921a; --gold2:#a87010;
+  --gold-dim:rgba(200,146,26,0.10); --gold-line:rgba(200,146,26,0.22);
+  --text:#b8a888; --text2:#e8d8b8; --muted:#6a5a48; --muted2:#352e24;
+  --chrome:rgba(160,140,110,0.10); --chrome2:rgba(160,140,110,0.20); --chrome3:rgba(160,140,110,0.36);
+  --danger:#8a2020; --danger-dim:rgba(138,32,32,0.10);
+  --safe:#386848; --safe-dim:rgba(56,104,72,0.10);
+  --font-title:'Cinzel Decorative',serif;
+  --font-body:'Fraunces',Georgia,serif;
+  --font-lore:'Lora',Georgia,serif;
+  --font-data:'Share Tech Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{background:var(--bg);color:var(--text);font-family:var(--font-lore);font-size:16px;line-height:1.75;-webkit-font-smoothing:antialiased}
+body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(80,50,10,0.08) 0%,transparent 60%),radial-gradient(ellipse at 50% 100%,rgba(0,0,0,0.5) 0%,transparent 70%);pointer-events:none;z-index:0}
+::-webkit-scrollbar{width:4px} ::-webkit-scrollbar-track{background:var(--bg)} ::-webkit-scrollbar-thumb{background:var(--muted2)}
+
+.page{max-width:1080px;margin:0 auto;padding:0 44px;position:relative;z-index:1}
+
+.panel{background:var(--panel);border:1px solid var(--chrome2);position:relative}
+.panel::before{content:'';position:absolute;top:-2px;left:-2px;width:14px;height:14px;border-top:2px solid var(--gold);border-left:2px solid var(--gold)}
+.panel::after{content:'';position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-bottom:2px solid var(--gold);border-right:2px solid var(--gold);opacity:.4}
+
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;height:52px;background:rgba(8,7,10,0.97);border-bottom:1px solid var(--chrome2);display:flex;align-items:center}
+.nav::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 5%,var(--gold-line) 20%,var(--gold) 50%,var(--gold-line) 80%,transparent 95%);opacity:.7}
+.nav-inner{max-width:1080px;margin:0 auto;padding:0 44px;width:100%;display:flex;align-items:center;justify-content:space-between}
+.nav-name{font-family:var(--font-title);font-size:13px;font-weight:700;color:var(--text2);text-decoration:none;letter-spacing:.1em}
+.nav-links{display:flex;align-items:center;gap:2px;list-style:none}
+.nav-links a{font-family:var(--font-lore);font-size:14px;color:var(--muted);text-decoration:none;letter-spacing:.06em;padding:7px 16px;border:1px solid transparent;transition:all .18s;display:block}
+.nav-links a:hover{color:var(--text2);border-color:var(--chrome2);background:var(--panel2)}
+.nav-links .buy-nav{color:var(--gold);border-color:var(--gold-line);background:var(--gold-dim)}
+.nav-links .buy-nav:hover{background:rgba(200,146,26,.18);color:var(--text2)}
+
+.orn{display:flex;align-items:center;max-width:1080px;margin:0 auto;padding:0 44px;position:relative;z-index:1}
+.orn::before{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold-line) 60%)}
+.orn::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--gold-line) 40%,transparent)}
+.orn-gem{width:6px;height:6px;background:var(--gold);transform:rotate(45deg);margin:0 20px;flex-shrink:0;opacity:.5}
+
+section{padding:80px 0;position:relative;z-index:1}
+.sec-label{font-family:var(--font-data);font-size:10px;color:var(--muted2);letter-spacing:.28em;text-transform:uppercase;margin-bottom:44px;display:flex;align-items:center;gap:14px}
+.sec-label .sn{color:var(--gold);opacity:.7}
+.sec-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--chrome2),transparent)}
+.sec-heading{font-family:var(--font-body);font-size:clamp(28px,3.5vw,44px);font-weight:700;color:var(--text2);line-height:1.1;margin-bottom:14px;letter-spacing:-.01em}
+.sec-heading em{font-style:italic;color:var(--gold);font-weight:400}
+.sec-sub{font-family:var(--font-lore);font-size:16px;color:var(--muted);line-height:1.75;max-width:580px;margin-bottom:48px}
+
+.btn-primary{font-family:var(--font-lore);font-size:15px;font-weight:600;letter-spacing:.08em;text-decoration:none;padding:13px 32px;background:var(--gold);color:var(--bg);border:1px solid var(--gold);transition:background .2s,transform .15s;display:inline-block}
+.btn-primary:hover{background:var(--gold2);border-color:var(--gold2);transform:translateY(-1px)}
+.btn-ghost{font-family:var(--font-lore);font-size:15px;font-weight:400;letter-spacing:.08em;text-decoration:none;padding:13px 32px;border:1px solid var(--chrome2);color:var(--muted);transition:border-color .2s,color .2s;display:inline-block}
+.btn-ghost:hover{border-color:var(--chrome3);color:var(--text2)}
+.btn-block{display:block;text-align:center}
+.mb-0{margin-bottom:0!important}
+.mb-8{margin-bottom:8px!important}
+.mb-16{margin-bottom:16px!important}
+
+/* ── Hero ─────────────────────────────────────────────────── */
+.hero{padding:106px 0 72px;position:relative;z-index:1}
+.hero-layout{display:grid;grid-template-columns:1fr 260px;gap:20px;align-items:start}
+.hero-main{padding:40px 44px 44px}
+.hero-eyebrow{font-family:var(--font-data);font-size:10px;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;margin-bottom:16px;opacity:.8}
+.hero h1{font-family:var(--font-title);font-size:clamp(38px,5.5vw,72px);font-weight:700;line-height:1.0;color:var(--text2);margin-bottom:20px;letter-spacing:.04em}
+.hero-tagline{font-family:var(--font-lore);font-size:15px;color:var(--text);line-height:1.75;margin-bottom:8px;max-width:520px}
+.hero-tagline strong{color:var(--text2);font-weight:600}
+.hero-sub-line{font-family:var(--font-lore);font-size:14px;color:var(--muted);line-height:1.7;max-width:520px;margin-bottom:36px}
+.hero-btns{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:32px}
+.proof-row{display:flex;flex-wrap:wrap;border:1px solid var(--chrome);background:var(--panel)}
+.proof-item{display:flex;flex-direction:column;padding:12px 20px;border-right:1px solid var(--chrome);flex:1}
+.proof-item:last-child{border-right:none}
+.proof-val{font-family:var(--font-body);font-size:15px;font-weight:700;color:var(--text2);line-height:1.2}
+.proof-key{font-family:var(--font-data);font-size:9px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-top:3px}
+.hero-stats{padding:24px 26px}
+.hero-stats.panel::before{border-color:var(--gold)}
+.stat-header{font-family:var(--font-data);font-size:9px;color:var(--gold);letter-spacing:.24em;text-transform:uppercase;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--chrome2);display:flex;align-items:center;justify-content:space-between}
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(160,140,110,.05)}
+.stat-row:last-child{border-bottom:none}
+.stat-divider{height:1px;background:var(--chrome2);margin:10px 0 6px}
+.stat-group-label{font-family:var(--font-data);font-size:8px;color:var(--gold);letter-spacing:.28em;text-transform:uppercase;margin-bottom:4px;opacity:.7}
+.skey{font-family:var(--font-data);font-size:9px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;flex-shrink:0}
+.sval{font-family:var(--font-body);font-size:14px;color:var(--text2);font-weight:500;text-align:right}
+.sval.gold{color:var(--gold);font-size:12px}
+.sval.good{color:#4a9060;white-space:nowrap}
+
+/* ── Pillar cards ─────────────────────────────────────────── */
+.pillar-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+.plr{background:var(--gold-dim);border:1px solid var(--gold-line);padding:32px 28px;position:relative;overflow:hidden;transition:background .2s,border-color .2s}
+.plr:hover{background:rgba(200,146,26,.12);border-color:rgba(200,146,26,.35)}
+.plr::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),transparent)}
+.plr::after{content:'';position:absolute;top:-1px;left:-1px;width:10px;height:10px;border-top:2px solid var(--gold);border-left:2px solid var(--gold)}
+.plr-icon{font-family:var(--font-data);font-size:9px;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px;opacity:.7}
+.plr-icon::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--gold);flex-shrink:0;box-shadow:0 0 6px var(--gold)}
+.plr h4{font-family:var(--font-body);font-size:17px;font-weight:700;color:var(--text2);margin-bottom:12px;line-height:1.2}
+.plr p{font-family:var(--font-lore);font-size:14px;color:var(--text);line-height:1.75}
+.plr .plr-note{font-family:var(--font-data);font-size:10px;color:var(--gold);letter-spacing:.08em;margin-top:14px;opacity:.7}
+
+/* ── Problem cards (kept for reference) ───────────────────── */
+.problem-intro{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;margin-bottom:48px}
+.problem-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+.pc{background:rgba(138,32,32,0.06);border:1px solid rgba(138,32,32,0.18);padding:32px 28px;position:relative;overflow:hidden;transition:background .2s,border-color .2s}
+.pc:hover{background:rgba(138,32,32,0.1);border-color:rgba(138,32,32,0.32)}
+.pc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,rgba(180,60,60,0.9),transparent)}
+.pc::after{content:'';position:absolute;top:-1px;left:-1px;width:10px;height:10px;border-top:2px solid rgba(180,60,60,0.6);border-left:2px solid rgba(180,60,60,0.6)}
+.pc-icon{font-family:var(--font-data);font-size:9px;color:rgba(200,100,100,0.55);letter-spacing:.22em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.pc-icon::before{content:'';width:4px;height:4px;border-radius:50%;background:rgba(180,60,60,0.6);flex-shrink:0}
+.pc h4{font-family:var(--font-body);font-size:17px;font-weight:700;color:var(--text2);margin-bottom:12px;line-height:1.2}
+.pc p{font-family:var(--font-lore);font-size:14px;color:var(--muted);line-height:1.75}
+
+/* ── Pipeline steps ───────────────────────────────────────── */
+.pipeline-wrap{position:relative}
+.pipeline-cage{height:320px;overflow:hidden;margin-bottom:0}
+.pipeline{display:flex;gap:2px;align-items:flex-start;height:320px}
+.ps{flex:1;background:var(--panel);border:1px solid var(--chrome);padding:28px 22px;position:relative;overflow:hidden;cursor:default;transition:flex .45s cubic-bezier(.4,0,.2,1),background .25s,border-color .25s;min-width:0;height:320px}
+.ps.ps-running{background:var(--panel2);border-color:var(--gold);flex:2.4}
+.ps.ps-running::before{background:var(--gold);box-shadow:0 0 16px rgba(200,146,26,.7)}
+.ps.ps-done{border-color:rgba(200,146,26,.25)}
+.ps.ps-done::before{background:rgba(200,146,26,.3)}
+.ps::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold-line),transparent);transition:background .3s,box-shadow .3s}
+.ps.ps-active{flex:2.4;background:var(--panel2);border-color:var(--gold-line)}
+.ps.ps-active::before{background:var(--gold);box-shadow:0 0 12px rgba(200,146,26,.5)}
+.ps.ps-inactive{flex:0.4;background:var(--bg);border-color:var(--chrome)}
+.ps.ps-inactive .ps-desc,.ps.ps-inactive .ps-detail{opacity:0!important;transition:none!important}
+.ps.ps-inactive .ps-name{color:var(--muted);opacity:.5;transition:none}
+.ps-n{font-family:var(--font-data);font-size:9px;color:var(--gold);opacity:.5;letter-spacing:.2em;margin-bottom:10px}
+.ps-name{font-family:var(--font-body);font-size:15px;font-weight:700;color:var(--text2);letter-spacing:.04em;margin-bottom:10px}
+.ps-desc{font-family:var(--font-lore);font-size:13px;color:var(--muted);line-height:1.68}
+.ps-detail{font-family:var(--font-lore);font-size:12px;color:var(--muted);line-height:1.75;margin-top:14px;padding-top:12px;border-top:1px solid var(--chrome);opacity:0;max-height:0;overflow:hidden;transition:none}
+.ps.ps-active .ps-detail{opacity:1;max-height:260px;transition:opacity .25s .1s,max-height .35s}
+.pipeline-oneclick{display:flex;align-items:center;gap:0;margin-top:18px;cursor:pointer;padding:0;background:none;border:none;font-family:var(--font-lore);font-size:13px;color:var(--muted);font-style:italic;transition:color .2s;user-select:none;width:100%;justify-content:center;}
+.pipeline-oneclick:hover{color:var(--text)}
+
+/* ── Wolf (problem/solution) panels ───────────────────────── */
+.wolf{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:72px;align-items:start}
+.ws{padding:36px;position:relative;border:1px solid;overflow:hidden;cursor:pointer;transition:background .22s;user-select:none}
+.ws::before{content:'';position:absolute;top:0;left:0;width:12px;height:12px}
+.ws.bad{background:var(--danger-dim);border-color:rgba(138,32,32,.22)}
+.ws.bad:hover{background:rgba(138,32,32,.09)}
+.ws.bad::before{border-top:2px solid var(--danger);border-left:2px solid var(--danger)}
+.ws.good{background:var(--safe-dim);border-color:rgba(56,104,72,.28)}
+.ws.good:hover{background:rgba(56,104,72,.09)}
+.ws.good::before{border-top:2px solid var(--safe);border-left:2px solid var(--safe)}
+.ws-tag{font-family:var(--font-data);font-size:9px;letter-spacing:.24em;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.ws-tag.bad{color:#b03838} .ws-tag.good{color:#4a9060}
+.ws-tag::before{content:'';width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.ws-tag.bad::before{background:#b03838}
+.ws-tag.good::before{background:#4a9060;box-shadow:0 0 6px #4a9060;animation:glow 2s ease-in-out infinite}
+@keyframes glow{0%,100%{opacity:1}50%{opacity:.3}}
+.ws h3{font-family:var(--font-body);font-size:22px;font-weight:700;color:var(--text2);margin-bottom:14px;line-height:1.25;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer}
+.ws h3::after{content:'+';font-family:var(--font-data);font-size:18px;font-weight:300;color:var(--muted2);flex-shrink:0;transition:transform .3s ease,color .2s;line-height:1}
+.ws:hover h3::after{color:var(--muted)}
+.ws.open h3::after{transform:rotate(45deg);color:var(--gold)}
+.ws-summary{font-family:var(--font-lore);font-size:15px;color:var(--muted);line-height:1.82;overflow:hidden;max-height:200px;transition:none}
+.ws-summary code{font-family:var(--font-data);font-size:12px;background:rgba(255,255,255,.04);border:1px solid var(--chrome);padding:1px 5px;color:var(--text)}
+.ws-detail{opacity:0;max-height:0;overflow:hidden;transition:none;position:relative}
+.ws.open .ws-summary{max-height:0;opacity:0;transition:none}
+.ws.open .ws-detail{opacity:1;max-height:480px;overflow-y:auto;transition:opacity .2s,max-height .35s ease;scrollbar-width:thin;scrollbar-color:var(--chrome2) transparent;padding-bottom:32px;padding-right:14px;mask-image:linear-gradient(to bottom,#000 93%,transparent 100%);-webkit-mask-image:linear-gradient(to bottom,#000 93%,transparent 100%)}
+.ws.open .ws-detail::-webkit-scrollbar{width:4px}
+.ws.open .ws-detail::-webkit-scrollbar-thumb{background:var(--chrome2);border-radius:2px}
+.ws.open .ws-detail::-webkit-scrollbar-track{background:transparent}
+.detail-block{margin-bottom:18px}
+.detail-block:last-child{margin-bottom:0}
+.detail-label{font-family:var(--font-data);font-size:9px;letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px}
+.ws.bad .detail-label{color:rgba(180,80,80,.7)} .ws.good .detail-label{color:rgba(74,160,100,.7)}
+.detail-text{font-family:var(--font-lore);font-size:14px;color:var(--muted);line-height:1.82}
+
+/* ── Diagnostics ──────────────────────────────────────────── */
+.diag-layout{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start;margin-bottom:40px}
+.codex-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--chrome);border:1px solid var(--chrome)}
+.ce{background:var(--panel);padding:18px 20px;transition:background .18s,border-left-color .18s;cursor:default;border-left:2px solid transparent}
+.ce:hover{background:var(--panel2);border-left-color:var(--gold)}
+.ce-name{font-family:var(--font-body);font-size:14px;font-weight:700;color:var(--text2);margin-bottom:5px;letter-spacing:.01em}
+.ce-desc{font-family:var(--font-data);font-size:10px;color:var(--muted2);line-height:1.55}
+.diag-total{font-family:var(--font-data);font-size:11px;color:var(--muted);letter-spacing:.1em;padding:14px 0;border-top:1px solid var(--chrome)}
+.diag-total strong{color:var(--gold)}
+
+/* ── Pricing ──────────────────────────────────────────────── */
+.pricing-layout{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+.price-card{padding:40px}
+.price-card.panel::before{border-color:var(--gold)}
+.price-amount{font-family:var(--font-body);font-size:72px;font-weight:900;color:var(--text2);line-height:1;margin-bottom:4px}
+.price-amount sup{font-size:28px;vertical-align:super;color:var(--gold)}
+.price-note{font-family:var(--font-data);font-size:10px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:28px}
+.price-includes{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:32px}
+.price-includes li{display:flex;align-items:center;gap:10px;font-family:var(--font-lore);font-size:14px;color:var(--text)}
+.price-includes li::before{content:'◆';color:var(--gold);font-size:7px;flex-shrink:0;opacity:.7}
+.price-markets{display:flex;flex-direction:column;gap:2px}
+.mkt-row{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--panel);border:1px solid var(--chrome);transition:background .2s,border-color .2s;position:relative}
+.mkt-row:hover{background:var(--panel2);border-color:var(--chrome2)}
+.mkt-row::before{content:'';position:absolute;top:0;left:0;bottom:0;width:2px;background:var(--gold-line);transition:background .2s}
+.mkt-row:hover::before{background:var(--gold)}
+.mkt-name{font-family:var(--font-body);font-size:15px;font-weight:600;color:var(--text2)}
+.mkt-btn{font-family:var(--font-data);font-size:10px;color:var(--gold);letter-spacing:.14em;text-decoration:none;border:1px solid var(--gold-line);padding:5px 14px;transition:background .2s,border-color .2s}
+.mkt-btn:hover{background:var(--gold-dim);border-color:var(--gold)}
+.price-disclaimer{font-family:var(--font-lore);font-size:13px;color:var(--muted2);font-style:italic;margin-top:16px;text-align:center}
+
+/* ── Video comparison ─────────────────────────────────────── */
+.vs-wrap{position:relative;aspect-ratio:16/9;background:#000;border:1px solid var(--chrome2);overflow:hidden;cursor:pointer;user-select:none}
+.vs-wrap::before{content:'';position:absolute;top:-2px;left:-2px;width:14px;height:14px;border-top:2px solid var(--gold);border-left:2px solid var(--gold);z-index:4;pointer-events:none}
+.vs-wrap::after{content:'';position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-bottom:2px solid var(--gold);border-right:2px solid var(--gold);opacity:.4;z-index:4;pointer-events:none}
+.vs-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.vs-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--panel);z-index:2}
+.vs-ph-icon{font-size:32px;color:var(--muted2);margin-bottom:10px}
+.vs-ph-text{font-family:var(--font-body);font-size:14px;color:var(--muted);font-weight:500}
+.vs-ph-sub{font-family:var(--font-data);font-size:9px;color:var(--muted2);letter-spacing:.12em;margin-top:6px;text-transform:uppercase}
+.vs-divider{position:absolute;top:0;bottom:0;width:2px;background:var(--gold);z-index:3;pointer-events:none;box-shadow:0 0 8px rgba(200,146,26,.5);transform:translateX(-50%)}
+.vs-handle{position:absolute;top:50%;z-index:4;transform:translate(-50%,-50%);width:11px;height:11px;border-radius:50%;background:var(--gold);border:1px solid var(--bg);pointer-events:none;box-shadow:0 0 6px rgba(200,146,26,.4)}
+.vs-label{position:absolute;top:14px;z-index:3;font-family:var(--font-data);font-size:9px;letter-spacing:.18em;text-transform:uppercase;padding:5px 10px;pointer-events:none;transition:opacity .2s}
+.vs-label-left{left:14px;color:#b03838;background:rgba(138,32,32,.25);border:1px solid rgba(138,32,32,.3)}
+.vs-label-right{right:14px;color:#4a9060;background:rgba(56,104,72,.25);border:1px solid rgba(56,104,72,.3)}
+.vs-captions{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-top:2px}
+.vs-cap{font-family:var(--font-lore);font-size:13px;line-height:1.6;padding:16px 20px}
+.vs-cap-bad{color:rgba(180,80,80,.7);background:var(--danger-dim);border:1px solid rgba(138,32,32,.15)}
+.vs-cap-good{color:rgba(74,144,96,.8);background:var(--safe-dim);border:1px solid rgba(56,104,72,.15)}
+.vs-pause-hint{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);z-index:5;font-family:var(--font-data);font-size:9px;letter-spacing:.16em;color:rgba(200,146,26,.6);background:rgba(8,7,10,.7);border:1px solid var(--gold-line);padding:4px 12px;pointer-events:none;transition:opacity .3s;opacity:0}
+.vs-scrubber-above{height:20px;cursor:pointer;position:relative;margin-bottom:6px;display:flex;align-items:center}
+.vs-scrubber-above-track{width:100%;height:3px;background:var(--chrome2);position:relative;border-radius:1px}
+.vs-scrubber-above-fill{height:100%;background:linear-gradient(90deg,var(--gold2),var(--gold));width:0%;border-radius:1px;transition:width .1s linear}
+
+/* ── Screenshot viewer ────────────────────────────────────── */
+.rb-viewer{margin-bottom:40px}
+.rb-viewer-panel{position:relative;border:1px solid var(--chrome2);background:#0a090d}
+.rb-viewer-panel::before{content:'';position:absolute;top:-2px;left:-2px;width:14px;height:14px;border-top:2px solid var(--gold);border-left:2px solid var(--gold);z-index:4;pointer-events:none}
+.rb-viewer-panel::after{content:'';position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-bottom:2px solid var(--gold);border-right:2px solid var(--gold);opacity:.4;z-index:4;pointer-events:none}
+.rb-top-line{position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold-line) 30%,var(--gold-line) 70%,transparent);opacity:.8;z-index:3;pointer-events:none}
+.rb-expand-btn{position:absolute;top:10px;right:12px;z-index:5;background:rgba(8,7,10,.85);border:1px solid var(--gold-line);color:rgba(200,146,26,.75);font-family:var(--font-data);font-size:9px;letter-spacing:.16em;padding:6px 11px;cursor:pointer;transition:color .2s,border-color .2s,background .2s;user-select:none}
+.rb-expand-btn:hover{color:var(--gold);border-color:var(--gold);background:rgba(8,7,10,.97)}
+.rb-viewport{overflow:hidden;width:100%}
+.rb-track{display:flex;transition:transform .52s cubic-bezier(.4,0,.2,1);will-change:transform}
+.rb-slide{min-width:100%;position:relative;display:flex;align-items:center;justify-content:center;padding:32px 60px 28px}
+.rb-slide img{width:100%;height:auto;max-height:420px;object-fit:contain;display:block;user-select:none;filter:brightness(.95);transition:max-height .45s cubic-bezier(.4,0,.2,1),padding .45s cubic-bezier(.4,0,.2,1),filter .2s}
+.rb-slide img:hover{filter:brightness(1)}
+.rb-viewer.expanded .rb-slide{padding:20px}
+.rb-viewer.expanded .rb-slide img{max-height:82vh}
+.rb-slide-tag{position:absolute;top:12px;left:14px;font-family:var(--font-data);font-size:8px;color:rgba(200,146,26,.8);letter-spacing:.26em;text-transform:uppercase;z-index:2}
+.rb-controls{display:flex;align-items:flex-start;justify-content:space-between;padding:18px 0 0;gap:24px}
+.rb-desc{flex:1;min-width:0}
+.rb-desc-title{font-family:var(--font-body);font-size:15px;font-weight:700;color:var(--text2);margin-bottom:5px}
+.rb-desc-body{font-family:var(--font-lore);font-size:13px;color:var(--text);line-height:1.65;transition:opacity .3s}
+.rb-nav{display:flex;align-items:center;gap:2px;flex-shrink:0;padding-top:2px}
+.rb-btn{font-family:var(--font-data);font-size:9px;letter-spacing:.18em;color:var(--muted);background:none;border:1px solid transparent;padding:7px 13px;cursor:pointer;transition:color .2s,border-color .2s,background .2s}
+.rb-btn:hover{color:var(--text2);border-color:var(--chrome2);background:var(--panel)}
+.rb-btn.rb-active{color:var(--gold);border-color:var(--gold-line);background:var(--gold-dim)}
+.rb-progress{height:1px;background:var(--chrome);margin-top:14px;position:relative;overflow:visible}
+.rb-progress-fill{position:absolute;top:0;left:0;height:100%;background:linear-gradient(90deg,var(--gold2),var(--gold));transition:width .52s cubic-bezier(.4,0,.2,1)}
+.rb-progress-fill::after{content:'';position:absolute;top:50%;right:0;transform:translate(50%,-50%);width:3px;height:3px;border-radius:50%;background:var(--gold);box-shadow:0 0 4px 1px rgba(200,146,26,.5);animation:tip-pulse 2.8s ease-in-out infinite;transition:opacity .3s}
+.rb-progress-fill.full::after{opacity:0;animation:none}
+@keyframes tip-pulse{0%,100%{box-shadow:0 0 3px 1px rgba(200,146,26,.35);opacity:.7}50%{box-shadow:0 0 6px 2px rgba(200,146,26,.65);opacity:1}}
+.body-p{font-family:var(--font-lore);font-size:15px;color:var(--muted);line-height:1.88}
+
+/* ── Included grid ────────────────────────────────────────── */
+.included-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:2px}
+.inc-group{
+  background:linear-gradient(180deg,rgba(255,240,180,.04) 0%,rgba(0,0,0,.08) 100%),var(--panel);
+  border:1px solid var(--chrome);
+  border-top:1px solid rgba(200,146,26,.3);
+  border-bottom:1px solid rgba(0,0,0,.5);
+  padding:28px 22px 24px;
+  position:relative;
+  overflow:hidden;
+  box-shadow:
+    inset 0 1px 0 rgba(255,240,160,.07),
+    inset 0 -1px 0 rgba(0,0,0,.4),
+    0 4px 12px rgba(0,0,0,.35);
+}
+.inc-group::before{content:'';position:absolute;top:0;left:0;width:10px;height:10px;border-top:1px solid rgba(200,146,26,.7);border-left:1px solid rgba(200,146,26,.7);pointer-events:none;z-index:3}
+.inc-group::after{content:'';position:absolute;top:0;left:-120px;width:120px;height:2px;background:linear-gradient(90deg,transparent 0%,rgba(200,146,26,.5) 30%,rgba(255,210,80,.9) 50%,rgba(200,146,26,.5) 70%,transparent 100%);z-index:2;pointer-events:none;animation:box-scan 12s linear infinite}
+@keyframes box-scan{0%{left:-120px;opacity:1}22%{opacity:1}24%{left:calc(100% + 120px);opacity:0}24.01%,100%{left:-120px;opacity:0}}
+.inc-group:nth-child(1)::after{animation-delay:0s}
+.inc-group:nth-child(2)::after{animation-delay:-9.6s}
+.inc-group:nth-child(3)::after{animation-delay:-7.2s}
+.inc-group:nth-child(4)::after{animation-delay:-4.8s}
+.inc-group:nth-child(5)::after{animation-delay:-2.4s}
+.inc-label{font-family:var(--font-data);font-size:9px;color:var(--gold);letter-spacing:.2em;text-transform:uppercase;margin-bottom:16px}
+.inc-list{list-style:none;display:flex;flex-direction:column;gap:9px}
+.inc-list li{font-family:var(--font-lore);font-size:13px;color:#8e8070;line-height:1.55;display:flex;align-items:flex-start;gap:9px;transition:color .2s}
+.inc-list li:hover{color:#b8a888}
+.inc-list li::before{content:'◆';font-size:5px;color:rgba(200,146,26,.3);flex-shrink:0;margin-top:6px;line-height:1}
+
+/* ── About ────────────────────────────────────────────────── */
+.about-layout{display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start}
+.about-main.panel{padding:36px 40px}
+.about-name{font-family:var(--font-title);font-size:20px;color:var(--text2);letter-spacing:.08em;margin-bottom:16px}
+.about-main p{font-family:var(--font-lore);font-size:14px;color:var(--muted);line-height:1.82;margin-bottom:14px}
+.about-main p:last-child{margin-bottom:0}
+.read-more-wrap{position:relative}
+.read-more-content{max-height:0;overflow:hidden;transition:max-height .5s ease,opacity .3s;opacity:0}
+.read-more-content.open{max-height:600px;opacity:1}
+.read-more-content p{margin-bottom:14px}
+.read-more-btn{font-family:var(--font-data);font-size:10px;color:var(--muted);letter-spacing:.12em;background:none;border:none;border-bottom:1px solid var(--muted2);cursor:pointer;padding:0 0 2px;margin-top:8px;transition:color .2s,border-color .2s}
+.read-more-btn:hover{color:var(--text2);border-color:var(--text2)}
+.about-right{display:flex;flex-direction:column;gap:12px}
+.about-card.panel{padding:28px 28px 24px}
+.ac-dot-row{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.ac-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:glow 2s ease-in-out infinite}
+.ac-status{font-family:var(--font-data);font-size:9px;color:var(--gold);letter-spacing:.18em;text-transform:uppercase;opacity:.8}
+.about-card h3{font-family:var(--font-body);font-size:20px;font-weight:700;color:var(--text2);margin-bottom:10px}
+.about-card p{font-family:var(--font-lore);font-size:13px;color:var(--muted);line-height:1.75;margin-bottom:10px}
+.about-sub{font-size:12px!important;color:var(--muted2)!important}
+.inline-gold{color:var(--gold);text-decoration:none;border-bottom:1px solid var(--gold-line)}
+.inline-gold:hover{border-color:var(--gold)}
+.social-links{display:flex;flex-direction:column;gap:2px}
+.soc-link{display:flex;align-items:center;gap:10px;padding:14px 18px;background:var(--panel);border:1px solid var(--chrome);color:var(--muted);text-decoration:none;font-family:var(--font-body);font-size:14px;font-weight:500;transition:background .2s,color .2s,border-color .2s}
+.soc-link:hover{background:var(--panel2);color:var(--text2);border-color:var(--chrome2)}
+.soc-link svg{flex-shrink:0;opacity:.6}
+.soc-tag{font-family:var(--font-data);font-size:9px;color:var(--muted2);letter-spacing:.1em;margin-left:auto}
+
+/* ── REMEMBERED teaser ────────────────────────────────────── */
+.r-tease{background:#000;border-top:1px solid #0a0808;padding:100px 44px 120px;text-align:center;position:relative;overflow:hidden}
+.r-tease-bg{position:absolute;inset:0;background:radial-gradient(ellipse 55% 65% at 50% 100%,rgba(80,5,5,.22),transparent);animation:teaseBreath 4s ease-in-out infinite;pointer-events:none}
+@keyframes teaseBreath{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.08)}}
+.r-tease-line{width:1px;height:48px;background:linear-gradient(to bottom,transparent,rgba(92,10,10,.4));margin:0 auto 40px}
+.r-tease-label{font-family:var(--font-data);font-size:9px;color:#1e0e0e;letter-spacing:.3em;text-transform:uppercase;margin-bottom:20px}
+.r-tease-title{font-family:'Cinzel Decorative',serif;font-size:clamp(28px,5vw,56px);letter-spacing:.2em;line-height:1;margin-bottom:20px;position:relative;display:inline-block;animation:teaseGlitch 7s infinite}
+.r-tease-slice{position:absolute;top:0;left:0;width:100%;color:#1c0808;font-family:'Cinzel Decorative',serif;font-size:inherit;letter-spacing:inherit;line-height:inherit;white-space:nowrap}
+.r-tease-slice:first-child{position:relative;visibility:hidden}
+.r-tease-slice:nth-child(2){clip-path:inset(0 0 78% 0);animation:slice1 6s ease-in-out infinite}
+.r-tease-slice:nth-child(3){clip-path:inset(22% 0 55% 0);animation:slice2 8s ease-in-out infinite}
+.r-tease-slice:nth-child(4){clip-path:inset(45% 0 28% 0);animation:slice3 5s ease-in-out infinite}
+.r-tease-slice:nth-child(5){clip-path:inset(72% 0 0 0);animation:slice4 7s ease-in-out infinite}
+@keyframes slice1{0%,100%{transform:translateX(-9px)}50%{transform:translateX(-16px)}}
+@keyframes slice2{0%,100%{transform:translateX(14px)}50%{transform:translateX(5px)}}
+@keyframes slice3{0%,100%{transform:translateX(-5px)}50%{transform:translateX(-13px)}}
+@keyframes slice4{0%,100%{transform:translateX(11px)}50%{transform:translateX(20px)}}
+@keyframes teaseGlitch{
+  0%,89%,100%{text-shadow:0 0 30px rgba(120,8,8,.15);transform:none;filter:none}
+  90%{text-shadow:2px 0 0 rgba(180,20,20,.4),-2px 0 0 rgba(180,20,20,.2);transform:translateX(2px);filter:blur(.4px)}
+  91%{text-shadow:-3px 0 0 rgba(160,10,10,.3),2px 0 0 rgba(160,10,10,.2);transform:translateX(-2px) skewX(-1deg);filter:blur(.3px)}
+  92%{text-shadow:none;transform:none;filter:none}
+  94%{text-shadow:1px 0 0 rgba(180,20,20,.35),-1px 0 0 rgba(100,5,5,.25);transform:translateX(1px)}
+  95%{text-shadow:none;transform:none;filter:none}
+}
+.r-tease-sub{font-family:var(--font-data);font-size:9px;color:#130606;letter-spacing:.2em;text-transform:uppercase}
+.r-tease-inner{position:relative;z-index:2}
+
+/* ── Footer ───────────────────────────────────────────────── */
+footer{border-top:1px solid var(--chrome);padding:28px 0;position:relative;z-index:1}
+.foot-bar{max-width:1080px;margin:0 auto;padding:0 44px;display:flex;align-items:center;justify-content:space-between}
+.foot-id{font-family:var(--font-data);font-size:9px;color:var(--muted2);letter-spacing:.1em}
+.foot-id span{color:var(--muted)}
+.foot-links{display:flex;gap:18px}
+.foot-links a{font-family:var(--font-data);font-size:9px;color:var(--muted2);text-decoration:none;letter-spacing:.1em;transition:color .2s}
+.foot-links a:hover{color:var(--muted)}
+
+/* ── Developer note ───────────────────────────────────────── */
+.dev-note-inline{margin-top:12px;cursor:pointer;user-select:none}
+.dev-note-label{font-family:var(--font-data);font-size:10px;color:var(--muted2);letter-spacing:.14em;text-transform:uppercase;border-bottom:1px solid transparent;padding-bottom:1px;transition:color .2s,border-color .2s;display:inline-flex;align-items:center}
+.dev-note-inline:hover .dev-note-label{color:var(--muted);border-color:var(--muted)}
+.dev-note-dots{display:inline-flex;gap:3px;margin-right:6px}
+.dev-note-dots span{width:4px;height:4px;border-radius:50%;background:var(--gold);opacity:.3;animation:dot-fade 1.4s ease-in-out infinite}
+.dev-note-dots span:nth-child(2){animation-delay:.2s}
+.dev-note-dots span:nth-child(3){animation-delay:.4s}
+@keyframes dot-fade{0%,100%{opacity:.15}50%{opacity:.8}}
+.dev-note-expand{max-height:0;overflow:hidden;opacity:0;transition:max-height .45s ease,opacity .3s,margin .3s;margin-top:0}
+.dev-note-inline.open .dev-note-expand{max-height:600px;opacity:1;margin-top:14px}
+.dev-note-expand p{font-family:var(--font-lore);font-size:14px;color:var(--muted);line-height:1.82;margin-bottom:12px}
+.dev-note-expand p:last-child{margin-bottom:0}
+
+/* ── Mid-page CTA ─────────────────────────────────────────── */
+.mid-cta{text-align:center;padding:48px 0 0}
+.mid-cta .btn-primary{font-size:14px;padding:11px 28px}
+
+/* ── Scroll progress bar ─────────────────────────────────── */
+.scroll-progress{position:fixed;top:0;left:0;height:2px;width:0%;background:var(--gold);z-index:101;pointer-events:none;transition:none}
+
+/* ── Active nav link ─────────────────────────────────────── */
+.nav-links a.nav-active{color:var(--text2);border-bottom-color:var(--gold);background:var(--gold-dim)}
+.nav-links .buy-nav.nav-active{background:rgba(200,146,26,.22);border-color:var(--gold-line);color:var(--text2)}
+
+/* ── Scroll-reveal ───────────────────────────────────────── */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+.reveal.revealed{opacity:1;transform:translateY(0)}
+.reveal-d1{transition-delay:.1s}
+.reveal-d2{transition-delay:.2s}
+.reveal-d3{transition-delay:.3s}
+@media(prefers-reduced-motion:reduce){
+  .reveal{transform:none;transition:opacity .4s ease}
+}
+
+/* ── Mobile ───────────────────────────────────────────────── */
+@media(max-width:960px){
+  .page{padding:0 24px}
+  .nav-inner{padding:0 24px}
+  .hero-layout{grid-template-columns:1fr;gap:16px}
+  .hero-main{padding:32px 28px 36px}
+  .hero-stats{order:-1}
+  .pillar-cards{grid-template-columns:1fr}
+  .problem-intro{grid-template-columns:1fr;gap:32px}
+  .problem-cards{grid-template-columns:1fr}
+  .wolf{grid-template-columns:1fr}
+  .diag-layout{grid-template-columns:1fr;gap:32px}
+  .codex-grid{grid-template-columns:repeat(2,1fr)}
+  .pricing-layout{grid-template-columns:1fr}
+  .about-layout{grid-template-columns:1fr}
+  .included-grid{grid-template-columns:repeat(2,1fr)}
+  .vs-captions{grid-template-columns:1fr}
+  .orn{padding:0 24px}
+  .foot-bar{padding:0 24px}
+}
+@media(max-width:640px){
+  .page{padding:0 16px}
+  .nav-inner{padding:0 16px}
+  .nav-links a{padding:7px 10px;font-size:12px}
+  .hero-main{padding:24px 20px 28px}
+  .hero-stats{padding:18px 20px}
+  .proof-row{flex-direction:column}
+  .proof-item{border-right:none;border-bottom:1px solid var(--chrome);padding:10px 16px}
+  .proof-item:last-child{border-bottom:none}
+  .pipeline-cage{height:auto;overflow:visible}
+  .pipeline{flex-direction:column;height:auto}
+  .ps{height:auto;min-height:0;flex:none!important}
+  .ps-detail{opacity:1!important;max-height:none!important}
+  .codex-grid{grid-template-columns:1fr}
+  .included-grid{grid-template-columns:1fr}
+  .foot-bar{flex-direction:column;gap:12px;text-align:center}
+}
+@media(max-width:480px){
+  .hero h1{font-size:36px}
+  .sec-heading{font-size:26px}
+  .price-amount{font-size:56px}
+}
+</style>
+</head>
+<body>
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     NAV
+     ═══════════════════════════════════════════════════════════ -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="#" class="nav-name">Kajin</a>
+    <ul class="nav-links">
+      <li><a href="#what">Features</a></li>
+      <li><a href="#heatmap">Heatmap</a></li>
+      <li><a href="#included">Included</a></li>
+      <li><a href="#pricing" class="buy-nav">Buy — $49</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════
+     HERO
+     ═══════════════════════════════════════════════════════════ -->
+<div class="page">
+<section class="hero">
+  <div class="hero-layout">
+    <div class="hero-main panel">
+      <div class="hero-eyebrow">Blender Addon · v1.0.0</div>
+      <h1>RigBridge</h1>
+      <p class="hero-tagline">Your animations break when you export them. <strong>Your weights have problems you can't see.</strong></p>
+      <p class="hero-sub-line">RigBridge ships a custom FBX exporter that handles the problems Blender's stock exporter doesn't. Your animations match what you see in the viewport no matter the game-engine. It also has a stress test that pushes every joint to its limit and paints your mesh where the weights tear. Rigify, Mixamo, custom rigs. Any engine.</p>
+      <div class="hero-btns">
+        <a href="#pricing" class="btn-primary">Get RigBridge — $49</a>
+        <a href="#what" class="btn-ghost">See what it does ↓</a>
+      </div>
+      <div class="proof-row">
+        <div class="proof-item"><span class="proof-val">UE5 · UE4</span><span class="proof-key">Unreal Engine</span></div>
+        <div class="proof-item"><span class="proof-val">Unity · Godot</span><span class="proof-key">+ Custom FBX</span></div>
+        <div class="proof-item"><span class="proof-val">Any Rig</span><span class="proof-key">Rigify · Mixamo · Custom</span></div>
+        <div class="proof-item"><span class="proof-val">$49</span><span class="proof-key">One-time</span></div>
+      </div>
+      <p style="font-family:var(--font-lore);font-size:13px;color:var(--muted2);margin-top:14px;font-style:italic;">Questions, updates, or just want to chat: <a href="https://x.com/Kajjiin" target="_blank" style="color:var(--muted);text-decoration:none;border-bottom:1px solid var(--muted2);">@Kajin on X</a></p>
+      <div class="dev-note-inline" id="devNote">
+        <div class="dev-note-label"><span class="dev-note-dots"><span></span><span></span><span></span></span>Why I built this</div>
+        <div class="dev-note-expand">
+          <p>I'm building a game in UE5 (first time ever). Rigify has always been my go-to for animation, so when I started importing into the engine, every animation broke in ways that never showed up in Blender (which confused me alot at first). Spine tearing, hierarchy mismatches, the mesh looking like liquid, deformation collapsing for no visible reason (many of these issues where happening when i tried different tools, settings). All of it export-only nothing visible in Blender.</p>
+          <p>I really got stubborn on it. I had already animated the main character (not far but my curiosity took over). I started doing research to then realize there is no "fix"? So I started getting desperate and tried every tool I could find, free and paid. They help transfer to a game rig, sure. But none of them fix the root cause, which is how Blender's FBX exporter writes bone transforms and how UE5 reads them back. Those are two different sets of math, and nobody was addressing the gap (Which no-one did).</p>
+          <p>I started debugging the entire export chain myself. First the game rig generation, which was the easy part. Then tracing every value that travels from Blender to UE5 and figuring out where it goes wrong. Bone matrix decomposition, scale inheritance flags, armature Null nodes, quaternion flips. One fix led to another. Step by step i found out every issue when exporting but it did take alot of effort.</p>
+          <p>After a while the tool got big enough that it stopped being a personal script and started looking like a product. I found the fixes I needed, and I figured someone else probably needs them too. I also started adding things I've always wanted Blender to have. Weight painting QA, stress testing, the diagnostics are part of the tools i used to debug, but i had many scripts also created. It turned into more than I planned. After a lot of hours of quality assurance, it's finally done.</p>
+        </div>
+      </div>
+    </div>
+    <div class="hero-stats panel">
+      <div class="stat-header"><span>Compatibility</span><span style="color:var(--gold);opacity:.7">◆</span></div>
+      <div class="stat-row"><span class="skey">Blender</span><span class="sval">4.2 – 5.1+</span></div>
+      <div class="stat-row"><span class="skey">Export</span><span class="sval gold">FBX + glTF</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat-group-label">Rigs</div>
+      <div class="stat-row"><span class="skey">Rigify</span><span class="sval good">Full Support</span></div>
+      <div class="stat-row"><span class="skey">Mixamo</span><span class="sval">Supported</span></div>
+      <div class="stat-row"><span class="skey">Custom</span><span class="sval">Supported</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat-group-label">Engines</div>
+      <div class="stat-row"><span class="skey">Unreal</span><span class="sval">UE5 · UE4</span></div>
+      <div class="stat-row"><span class="skey">Unity</span><span class="sval">Supported</span></div>
+      <div class="stat-row"><span class="skey">Godot</span><span class="sval">Supported</span></div>
+      <div class="stat-row"><span class="skey">Custom</span><span class="sval good">Configurable</span></div>
+    </div>
+  </div>
+</section>
+</div>
+
+<div class="orn"><div class="orn-gem"></div></div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     01 — WHAT IT DOES (THREE PILLARS)
+     ═══════════════════════════════════════════════════════════ -->
+<div class="page">
+<section id="what">
+  <div class="sec-label"><span class="sn">01</span> What it does</div>
+  <h2 class="sec-heading">Three tools.<br><em>One addon.</em></h2>
+  <p class="sec-sub">Each one does something Blender doesn't give you out of the box. Together they cover the full path from weight painting to a clean FBX in your engine.</p>
+
+  <div class="pillar-cards reveal">
+    <div class="plr">
+      <div class="plr-icon">Export Pipeline</div>
+      <h4>Your rig, clean, in your engine.</h4>
+      <p>Pick your rig. Pick your mesh. Click one button. RigBridge generates a game-ready skeleton, bakes your animations, and exports through a custom FBX pipeline with permanent fixes for the bone matrix bugs that make stock Blender export break in UE5. Also supports glTF for Godot and Unity. Profiles for UE5, UE4, Unity, Godot, and custom engines.</p>
+      <div class="plr-note">Custom forked FBX exporter · Batch export · LOD generation</div>
+    </div>
+    <div class="plr">
+      <div class="plr-icon">Weight QA</div>
+      <h4>See where your weights break.</h4>
+      <p>21 extreme poses that push every joint to its limit. The stress test paints a heatmap directly on your mesh. Red where it tears, green where it holds. 5 quality map overlays for stretch, influence count, bone dominance, symmetry, and animation velocity. Joint preview lets you bend a bone and watch the heatmap update live while you paint.</p>
+      <div class="plr-note">Works on any rig · No game export needed</div>
+    </div>
+    <div class="plr">
+      <div class="plr-icon">Diagnostics</div>
+      <h4>Know exactly what went wrong.</h4>
+      <p>24 validators covering every stage of the pipeline. Quick Check runs 3 essential tests in seconds. Full analysis traces transforms stage by stage and tells you which step, which bone, and why. When something breaks between Blender and your engine, these tools find it. Built from the same debugging scripts that found every bug during development.</p>
+      <div class="plr-note">Quick Check · Full Analysis · Deep Spine Tracing</div>
+    </div>
+  </div>
+</section>
+</div>
+
+<div class="orn"><div class="orn-gem"></div></div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     02 — BEFORE & AFTER
+     ═══════════════════════════════════════════════════════════ -->
+<div class="page">
+<section id="proof">
+  <div class="sec-label"><span class="sn">02</span> Before &amp; after</div>
+  <h2 class="sec-heading mb-8">Same rig.<br><em>Different pipeline.</em></h2>
+  <p class="sec-sub" style="margin-bottom:32px">Drag the slider to compare. Same Rigify rig, same animations, same engine. The only difference is how it was exported.</p>
+
+  <div class="vs-scrubber-above" id="vsScrubber">
+    <div class="vs-scrubber-above-track">
+      <div class="vs-scrubber-above-fill" id="vsFill"></div>
+    </div>
+  </div>
+
+  <div class="vs-wrap reveal" id="vsWrap">
+    <video id="vLeft" class="vs-video" autoplay loop muted playsinline preload="auto">
+      <source src="bugs.mp4" type="video/mp4">
+    </video>
+    <div class="vs-placeholder" id="phLeft">
+      <div class="vs-ph-icon">▶</div>
+      <div class="vs-ph-text">Video coming soon</div>
+      <div class="vs-ph-sub">jitter · tearing · liquid mesh</div>
+    </div>
+    <video id="vRight" class="vs-video" autoplay loop muted playsinline preload="auto">
+      <source src="clean.mp4" type="video/mp4">
+    </video>
+    <div class="vs-placeholder" id="phRight">
+      <div class="vs-ph-icon">▶</div>
+      <div class="vs-ph-text">Video coming soon</div>
+      <div class="vs-ph-sub">clean spine · stable hierarchy · correct weights</div>
+    </div>
+    <div class="vs-label vs-label-left" id="vsLabelLeft">Stock Export</div>
+    <div class="vs-label vs-label-right" id="vsLabelRight">RigBridge</div>
+    <div class="vs-divider" id="vsDivider"></div>
+    <div class="vs-handle" id="vsHandle"></div>
+    <div class="vs-pause-hint" id="vsPauseHint">▶ PLAY</div>
+  </div>
+
+  <div class="vs-captions">
+    <div class="vs-cap vs-cap-bad">Rigify rig exported to UE5 using Blender's stock exporter. Jitter on every frame, tearing at the spine, mesh collapsing inward. Tried other addons too. Same results.</div>
+    <div class="vs-cap vs-cap-good">Same rig, same animations. Exported through RigBridge's custom FBX pipeline. Clean playback, no jitter, no tearing.</div>
+  </div>
+</section>
+</div>
+
+<div class="orn"><div class="orn-gem"></div></div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     03 — THE HEATMAP
+     ═══════════════════════════════════════════════════════════ -->
+<div class="page">
+<section id="heatmap">
+  <div class="sec-label"><span class="sn">03</span> The Heatmap</div>
+  <h2 class="sec-heading">See where your<br><em>weights break.</em></h2>
+  <p class="sec-sub">You don't need to be making a game to use this. The stress test and quality maps work on any armature. Assign a rig, assign a mesh, run the test.</p>
+
+  <div id="heatmapGrid" class="reveal" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;margin-bottom:40px;transition:grid-template-columns .5s cubic-bezier(.4,0,.2,1);">
+    <div id="heatmapVideoWrap" style="position:relative;aspect-ratio:4/3;background:#000;border:1px solid var(--chrome2);overflow:hidden;display:flex;align-items:center;justify-content:center;transition:aspect-ratio .5s cubic-bezier(.4,0,.2,1);">
+      <div style="position:absolute;top:-2px;left:-2px;width:14px;height:14px;border-top:2px solid var(--gold);border-left:2px solid var(--gold);z-index:2;"></div>
+      <div style="position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-bottom:2px solid var(--gold);border-right:2px solid var(--gold);opacity:.4;z-index:2;"></div>
+      <video id="heatmapVid" autoplay loop muted playsinline preload="auto" style="width:100%;height:100%;object-fit:cover;">
+        <source src="WeighTools_C.mp4" type="video/mp4">
+      </video>
+      <!-- Fallback if video missing -->
+      <div id="heatmapPh" style="position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;background:var(--panel);z-index:1;">
+        <div style="font-size:48px;margin-bottom:12px;opacity:.15;">🎨</div>
+        <div style="font-family:var(--font-data);font-size:9px;color:var(--muted2);letter-spacing:.2em;text-transform:uppercase;">Heatmap video</div>
+        <div style="font-family:var(--font-data);font-size:8px;color:var(--muted2);letter-spacing:.1em;margin-top:4px;opacity:.5;">Place WeighTools_C.mp4 next to index.html</div>
+      </div>
+      <button id="heatmapExpand" onclick="toggleHeatmapExpand()" style="position:absolute;bottom:8px;right:8px;z-index:3;width:32px;height:32px;background:rgba(0,0,0,.65);border:1px solid rgba(200,146,26,.4);border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,border-color .2s;" onmouseenter="this.style.background='rgba(0,0,0,.85)';this.style.borderColor='var(--gold)'" onmouseleave="this.style.background='rgba(0,0,0,.65)';this.style.borderColor='rgba(200,146,26,.4)'">
+        <svg id="heatmapExpandIcon" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="var(--gold)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="10,2 14,2 14,6"/><line x1="9" y1="7" x2="14" y2="2"/>
+          <polyline points="6,14 2,14 2,10"/><line x1="7" y1="9" x2="2" y2="14"/>
+        </svg>
+        <svg id="heatmapShrinkIcon" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="var(--gold)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+          <polyline points="14,6 10,6 10,2"/><line x1="15" y1="1" x2="10" y2="6"/>
+          <polyline points="2,10 6,10 6,14"/><line x1="1" y1="15" x2="6" y2="10"/>
+        </svg>
+      </button>
+    </div>
+    <div id="heatmapText" style="transition:opacity .4s ease,max-height .5s ease;overflow:hidden;">
+      <p style="font-family:var(--font-lore);font-size:15px;color:var(--muted);line-height:1.88;margin-bottom:20px;">The stress test cycles through 21 extreme poses. Deep squats, full arm raises, spine twists, combat stances. For every vertex it measures edge stretch and normal deviation. The result is painted directly on your mesh.</p>
+      <p style="font-family:var(--font-lore);font-size:15px;color:var(--muted);line-height:1.88;margin-bottom:20px;">Works on Rigify, Mixamo, or any custom rig. If the skeleton isn't humanoid, RigBridge generates stress poses automatically from the bone structure. The weight tools don't need a game rig. They run on whatever armature your mesh is bound to.</p>
+      <p style="font-family:var(--font-lore);font-size:15px;color:var(--text);line-height:1.88;font-style:italic;">Enter weight paint. Click a bone. Scroll to bend it. Paint the red away.</p>
+    </div>
+  </div>
+
+  <div class="reveal" style="display:grid;grid-template-columns:repeat(5,1fr);gap:2px;">
+    <div style="background:var(--panel);border:1px solid var(--chrome);padding:18px 16px;border-top:2px solid rgba(200,146,26,0.3);">
+      <div style="font-family:var(--font-body);font-size:14px;font-weight:700;color:var(--text2);margin-bottom:5px;">Stretch</div>
+      <div style="font-family:var(--font-data);font-size:10px;color:var(--muted2);line-height:1.55;">Edge deformation under extreme poses. Finds tearing and compression.</div>
+    </div>
+    <div style="background:var(--panel);border:1px solid var(--chrome);padding:18px 16px;border-top:2px solid rgba(200,146,26,0.3);">
+      <div style="font-family:var(--font-body);font-size:14px;font-weight:700;color:var(--text2);margin-bottom:5px;">Influence</div>
+      <div style="font-family:var(--font-data);font-size:10px;color:var(--muted2);line-height:1.55;">Bones per vertex. Shows over-influenced or single-bone areas.</div>
+    </div>
+    <div style="background:var(--panel);border:1px solid var(--chrome);padding:18px 16px;border-top:2px solid rgba(200,146,26,0.3);">
+      <div style="font-family:var(--font-body);font-size:14px;font-weight:700;color:var(--text2);margin-bottom:5px;">Dominance</div>
+      <div style="font-family:var(--font-data);font-size:10px;color:var(--muted2);line-height:1.55;">Which bone controls each vertex. Reveals unexpected influence.</div>
+    </div>
+    <div style="background:var(--panel);border:1px solid var(--chrome);padding:18px 16px;border-top:2px solid rgba(200,146,26,0.3);">
+      <div style="font-family:var(--font-body);font-size:14px;font-weight:700;color:var(--text2);margin-bottom:5px;">Symmetry</div>
+      <div style="font-family:var(--font-data);font-size:10px;color:var(--muted2);line-height:1.55;">Left vs right weight deviation. Catches asymmetric painting.</div>
+    </div>
+    <div style="background:var(--panel);border:1px solid var(--chrome);padding:18px 16px;border-top:2px solid rgba(200,146,26,0.3);">
+      <div style="font-family:var(--font-body);font-size:14px;font-weight:700;color:var(--text2);margin-bottom:5px;">Velocity</div>
+      <div style="font-family:var(--font-data);font-size:10px;color:var(--muted2);line-height:1.55;">Per-vertex animation speed. Shows where motion artifacts appear.</div>
+    </div>
+  </div>
+
+  <div class="mid-cta">
+    <a href="#pricing" class="btn-primary">Get RigBridge — $49</a>
+  </div>
+</section>
+</div>
+
+<div class="orn"><div class="orn-gem"></div></div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     04 — HOW IT WORKS (PIPELINE)
+     ═══════════════════════════════════════════════════════════ -->
+<div class="page">
+<section id="how">
+  <div class="sec-label"><span class="sn">04</span> How it works</div>
+  <h2 class="sec-heading mb-16">The pipeline.</h2>
+  <p class="sec-sub">Five steps. The first three run with one click if you don't need to change anything between them. The pipeline also ships the full weight painting toolkit and quality maps covered in <a href="#heatmap" style="color:var(--gold);border-bottom:1px solid var(--gold-line);">The Heatmap</a> above.</p>
+  <div class="pipeline-wrap reveal">
+    <div class="pipeline-cage">
+    <div class="pipeline" id="pipelineSteps">
+      <div class="ps"><div class="ps-n">I</div><div class="ps-name">Generate Rig</div><div class="ps-desc">Clean game-ready skeleton from your source rig.</div><div class="ps-detail">Reads bone geometry from your Rigify, Mixamo, or custom rig and generates a new armature with clean internal matrices. Not a duplicate. Self-parent guard prevents broken hierarchies. Weighted bone protection means no bone with mesh weights gets removed. Spine sub-segments are detected and merged automatically when they'd cause issues.</div></div>
+      <div class="ps"><div class="ps-n">II</div><div class="ps-name">Bind Mesh</div><div class="ps-desc">All meshes, weapons, and props. One pass.</div><div class="ps-detail">Switches armature modifiers from your source rig to the export rig at rest pose, so Blender records correct bind matrices. Bone-parented objects like weapons and armor are discovered automatically and remapped to their deform bone equivalents. Multiple fallback strategies for non-standard setups.</div></div>
+      <div class="ps"><div class="ps-n">III</div><div class="ps-name">Bake</div><div class="ps-desc">Visual keying. All actions found automatically.</div><div class="ps-detail">Bakes every action in your .blend file. Newly imported animations that don't have NLA strips yet are still found. Euler mode on all export bones for clean FBX data. Scale keyframes are cleaned post-bake. You can also bake a single selected action if you're iterating on one animation.</div></div>
+      <div class="ps"><div class="ps-n">IV</div><div class="ps-name">Diagnose</div><div class="ps-desc">24 validators. Know what broke before you export.</div><div class="ps-detail">Quick Check runs 3 essential tests in seconds for a fast pass/fail. Full Check runs the complete suite. Deep Analysis covers spine tracing, animation mismatch comparison, bake verification, and bone chain inspection. Each tool tells you what it found, where, and what to do about it.</div></div>
+      <div class="ps"><div class="ps-n">V</div><div class="ps-name">Export</div><div class="ps-desc">Custom FBX. glTF. Per-engine profiles.</div><div class="ps-detail">Full export dialog with Skeleton, Animation, Attachments, and Output controls. RigBridge's forked FBX exporter with permanent fixes for bone matrix decomposition, scale inheritance, and armature Null animation. Also supports glTF 2.0. Content modes: full, mesh only, animation only, or split files. Batch export across all actions.</div></div>
+    </div>
+    </div>
+    <div class="pipeline-oneclick" id="pipelineOneClick">Steps I–III run in sequence with a single&nbsp;<span style="color:var(--gold);font-style:normal;border-bottom:1px solid var(--gold);padding-bottom:1px;pointer-events:none;">click</span>.</div>
+  </div>
+</section>
+</div>
+
+<div class="orn"><div class="orn-gem"></div></div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     05 — THE CUSTOM EXPORTER
+     ═══════════════════════════════════════════════════════════ -->
+<div class="page">
+<section id="exporter">
+  <div class="sec-label"><span class="sn">05</span> The custom exporter</div>
+  <h2 class="sec-heading" style="max-width:600px;">Why RigBridge ships<br><em>its own FBX exporter.</em></h2>
+  <p class="sec-sub" style="margin-bottom:32px;">Every Rigify export tool runs through the same FBX exporter that ships with Blender. That exporter has bone matrix calculation bugs that have been there for years. RigBridge includes a full fork with permanent corrections.</p>
+
+  <div class="wolf reveal">
+    <div class="ws bad">
+      <div class="ws-tag bad">Stock Blender FBX</div>
+      <h3>What goes wrong</h3>
+      <div class="ws-summary">
+        Blender's FBX exporter wasn't built for game engine skeletons. It writes two animated root nodes that fight each other, decomposes bone rotations through a method that introduces per-frame noise, and strips bones without checking if the mesh needs them. The bugs have been open in Blender's tracker for years.
+      </div>
+      <div class="ws-detail">
+        <div class="detail-block">
+          <div class="detail-label">Hidden scale becomes visible</div>
+          <div class="detail-text">Rigify uses non-unit scale on spine sub-segments. Blender hides this with <code style="font-family:var(--font-data);font-size:11px;background:rgba(255,255,255,.04);border:1px solid rgba(160,140,110,.1);padding:1px 5px">inherit_scale</code> during evaluation. UE5 interprets the equivalent FBX flag differently. Scale that was invisible in Blender propagates through the entire bone chain in-engine.</div>
+        </div>
+        <div class="detail-block">
+          <div class="detail-label">Two root nodes fight each other</div>
+          <div class="detail-text">The FBX wraps every armature in a Null node for axis conversion. The stock exporter animates this node on every frame alongside the bones inside it. The engine sees two animated root-level nodes producing conflicting transforms.</div>
+        </div>
+        <div class="detail-block">
+          <div class="detail-label">The rotation math doesn't survive the trip</div>
+          <div class="detail-text">Bone transforms are decomposed through a quaternion intermediate instead of extracting rotation directly from the matrix. The resulting values are correct when recombined. But UE5 has an optimization: when scale looks constant, it evaluates without it. The values were computed with scale included. Without it, they're slightly wrong. Per bone the difference is invisible. Through a chain of spine bones, it's not.</div>
+        </div>
+        <div class="detail-block">
+          <div class="detail-label">Weighted bones get stripped</div>
+          <div class="detail-text">The stock exporter has no awareness of which bones carry vertex weights. Bone filters can remove bones that mesh vertices depend on. The mesh arrives bound to bones that no longer exist.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ws good">
+      <div class="ws-tag good">RigBridge FBX</div>
+      <h3>What I fixed</h3>
+      <div class="ws-summary">
+        A full fork of Blender's FBX export pipeline. Six files with permanent corrections. Not a monkey-patch, not a runtime replacement. Your animations in-engine match what you see in Blender.
+      </div>
+      <div class="ws-detail">
+        <div class="detail-block">
+          <div class="detail-label">Animations look the same in-engine</div>
+          <div class="detail-text">Scale inheritance is handled per-engine so hidden values never leak. The armature Null node is static. Rotation is extracted directly from the matrix. Per-bone scale values are tuned for each engine's evaluation path.</div>
+        </div>
+        <div class="detail-block">
+          <div class="detail-label">The export can't silently corrupt your data</div>
+          <div class="detail-text">Pipeline enforces operation ordering. Steps that would modify the skeleton after bake are blocked. Bone names are checked for collisions. Source actions are filtered out. Bone orientation changes after bake are detected and blocked.</div>
+        </div>
+        <div class="detail-block">
+          <div class="detail-label">No weighted bone is ever removed</div>
+          <div class="detail-text">Before any bone is filtered, every mesh in the scene is scanned. Any bone with real vertex weights is protected regardless of its name or naming filter results.</div>
+        </div>
+        <div class="detail-block">
+          <div class="detail-label">The rig is generated, not duplicated</div>
+          <div class="detail-text">Bone geometry is read from your source rig, then a new armature is created with clean internal matrices. No inherited evaluation state, no bendy-bone cache, no accumulated artifacts.</div>
+        </div>
+        <div class="detail-block">
+          <div class="detail-label">Engine-specific handling</div>
+          <div class="detail-text">Automatic bone naming with collision detection. IK target bones for hands and feet. Root motion toggle. Batch export. Profiles for UE5, UE4, Unity, Godot, and custom pipelines. Blender 4.2 through 5.1+ compatible.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+<div class="orn"><div class="orn-gem"></div></div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     06 — DIAGNOSTICS
+     ═══════════════════════════════════════════════════════════ -->
+<div class="page">
+<section id="diagnostics">
+  <div class="sec-label"><span class="sn">06</span> Diagnostics</div>
+  <div class="diag-layout reveal">
+    <div>
+      <h2 class="sec-heading">When something breaks,<br><em>these find it.</em></h2>
+      <p class="body-p">These are the debugging tools i used to create the addon, i also had a ton of custom Python scripts that got each point of data that exists so i could actually see what was going on (the scripts are not included in the addon as they are not needed). The debug section does a lot for every user but the deep analysis is for the more technical person as some knowledge is needed to understand what they do. These tools are included incase you need them, which you should never need but in case something actually goes wrong, they are there. </p>
+    </div>
+    <div style="align-self:stretch;display:flex;align-items:flex-end;">
+      <div class="diag-total" style="transform:translateY(24px)"><strong>24</strong> diagnostic and validation tools across Quick Checks and Deep Analysis</div>
+    </div>
+  </div>
+
+  <p style="font-family:var(--font-data);font-size:9px;color:var(--gold);letter-spacing:.28em;text-transform:uppercase;opacity:.7;margin-bottom:8px;">Quick Checks</p>
+  <div class="codex-grid" style="margin-bottom:2px;">
+    <div class="ce"><div class="ce-name">Validate Rig</div><div class="ce-desc">Armature modifier, duplicate bone names, non-deform bones, weight coverage, object scale.</div></div>
+    <div class="ce"><div class="ce-name">Weight Audit</div><div class="ce-desc">Unweighted vertices, over-influenced, micro-weights, rogue islands. Selects problem verts. Auto-fix available.</div></div>
+    <div class="ce"><div class="ce-name">Verify Bake</div><div class="ce-desc">Bones with actual fcurves. Detects if only the control rig is animated (bake failed). Frame count and coverage.</div></div>
+    <div class="ce"><div class="ce-name">Skeleton Compatibility</div><div class="ce-desc">Compares source and game rig. Missing bones, extra bones, parent mismatches, rest position differences.</div></div>
+    <div class="ce"><div class="ce-name">Export Readiness</div><div class="ce-desc">Meshes bound, no negative scale, root at origin, influence limits, no leftover constraints.</div></div>
+    <div class="ce"><div class="ce-name">Shape Key Checker</div><div class="ce-desc">Modifier position, shape key values at export time, basis key order, engine-compatible naming.</div></div>
+    <div class="ce"><div class="ce-name">Root Motion Validator</div><div class="ce-desc">Moving root vs static root detection. Root bone position and keyframe coverage.</div></div>
+    <div class="ce" style="background:var(--panel2);border-color:var(--chrome2);display:flex;flex-direction:column;justify-content:center;gap:6px;">
+      <div style="font-family:var(--font-lore);font-size:13px;font-weight:400;color:var(--gold);line-height:1.2;font-style:italic;">All seven run in one click.</div>
+      <div style="font-family:var(--font-lore);font-size:13px;color:var(--muted);line-height:1.6;"><span style="color:var(--text2);font-weight:600;">Quick Check</span> runs the 3 essentials in seconds. <span style="color:var(--text2);font-weight:600;">Run All</span> runs the full suite.</div>
+    </div>
+  </div>
+
+  <p style="font-family:var(--font-data);font-size:9px;color:var(--gold);letter-spacing:.28em;text-transform:uppercase;opacity:.7;margin-bottom:8px;margin-top:16px;">Deep Analysis</p>
+  <div class="codex-grid">
+    <div class="ce"><div class="ce-name">Stage Tracer</div><div class="ce-desc">Forensic stage-by-stage tracer. Measures world position error at source, post-bake, post-correction. Reports first bad stage.</div></div>
+    <div class="ce"><div class="ce-name">Spine Bake Analyser</div><div class="ce-desc">Per-frame analysis of all spine bones. Separates consistent offset (bendy-bone) from per-frame jitter (constraint issue).</div></div>
+    <div class="ce"><div class="ce-name">Export Pop Detector</div><div class="ce-desc">Compares source vs export rig. Only flags pops that exist in the export but not the source. Isolates export artifacts.</div></div>
+    <div class="ce"><div class="ce-name">Bone Chain Inspector</div><div class="ce-desc">Compares parent chain, inherit_scale, rest position, and baked keys for the bones most likely to cause issues.</div></div>
+    <div class="ce"><div class="ce-name">Animation Mismatch</div><div class="ce-desc">Source rig vs baked export rig on every frame. Finds bones that move differently after export.</div></div>
+    <div class="ce"><div class="ce-name">Bone Pop Detector</div><div class="ce-desc">Frame-to-frame jumps in the baked rig. Finds shoulder and root popping that appears in-engine but not in Blender.</div></div>
+    <div class="ce"><div class="ce-name">Deep Bake Verification</div><div class="ce-desc">Multi-frame verification across all actions. Catches failures a single-frame check misses.</div></div>
+    <div class="ce"><div class="ce-name">NLA Pre-Bake Audit</div><div class="ce-desc">NLA state before baking. Muted tracks, solo mode, overlapping strips, stacked active actions.</div></div>
+    <div class="ce"><div class="ce-name">Vert Inspector</div><div class="ce-desc">Select vertices in the problem area. Reports which bones drive them, whether baked, whether twist bones.</div></div>
+    <div class="ce"><div class="ce-name">Weighted but Missing</div><div class="ce-desc">Bones that influence the mesh but are missing from the export rig, have no baked keys, or are static.</div></div>
+    <div class="ce"><div class="ce-name">Pre-Bind Safety Check</div><div class="ce-desc">Validates the export rig before mesh bind. All weighted bones exist, critical parent chains intact.</div></div>
+    <div class="ce"><div class="ce-name">Bone Scale Validator</div><div class="ce-desc">Animated scale, non-unit scale, negative scale. Unexpected scale keys cause deformation artifacts in-engine.</div></div>
+    <div class="ce"><div class="ce-name">Twist Bone Audit</div><div class="ce-desc">Twist and helper bones influencing the mesh. Missing or unanimated twist bones cause shoulder and wrist issues.</div></div>
+    <div class="ce"><div class="ce-name">Critical Bone Checklist</div><div class="ce-desc">Root, pelvis, spine, and hip bones exist, are weighted, and have baked keyframe data.</div></div>
+    <div class="ce"><div class="ce-name">Space Solver</div><div class="ce-desc">Tests every local-space conversion method on a bone and ranks by accuracy. Tells you which math is correct for your rig.</div></div>
+    <div class="ce"><div class="ce-name">Debug Export</div><div class="ce-desc">Exports active action only. Step=1, simplify=0, deform bones only. For isolating export problems.</div></div>
+  </div>
+</section>
+</div>
+
+<div class="orn"><div class="orn-gem"></div></div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     07 — WHAT YOU GET (SCREENSHOTS + INCLUDED)
+     ═══════════════════════════════════════════════════════════ -->
+<div class="page">
+<section id="included" style="scroll-margin-top:52px;">
+  <div class="sec-label"><span class="sn">07</span> What you get</div>
+  <h2 class="sec-heading mb-8">Everything that ships<br><em>with the addon.</em></h2>
+  <p class="sec-sub" style="margin-bottom:32px">The pipeline is one part of it. Below is everything included.</p>
+
+  <div class="rb-viewer">
+    <div class="rb-viewer-panel">
+      <div class="rb-top-line"></div>
+      <button class="rb-expand-btn" id="rbExpandBtn">⤢ expand</button>
+      <div class="rb-viewport">
+        <div class="rb-track" id="rbTrack">
+          <div class="rb-slide">
+            <div class="rb-slide-tag">01 · In Unreal</div>
+            <img src="UE5_refrencepose.png" alt="Exported RigBridge character loaded in Unreal Engine 5 skeletal mesh viewer with clean hierarchy">
+          </div>
+          <div class="rb-slide">
+            <div class="rb-slide-tag">02 · Pipeline &amp; Setup</div>
+            <img src="screenshot-pipeline.png" alt="RigBridge Pipeline tab with Setup fields, Humanoid Unreal Engine 5 profile, and Build + Bake All controls">
+          </div>
+          <div class="rb-slide">
+            <div class="rb-slide-tag">03 · Animation &amp; Baking</div>
+            <img src="Screenshot- Export- Animations.png" alt="RigBridge Animation tab showing baked actions list, bake settings, and shape key options">
+          </div>
+          <div class="rb-slide">
+            <div class="rb-slide-tag">04 · Attachments</div>
+            <img src="Screenshot - Export - Attachments.png" alt="Samurai character in RigBridge with Attachments tab listing helmet, guards, shoulder armor, and weapon parented to bones">
+          </div>
+          <div class="rb-slide">
+            <div class="rb-slide-tag">05 · Any Rig</div>
+            <img src="Wolf.png" alt="Wolf model with Rigify Quadruped rig exported through RigBridge to Unreal Engine 5">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="rb-controls">
+      <div class="rb-desc">
+        <div class="rb-desc-title" id="rbDescTitle">In Unreal</div>
+        <div class="rb-desc-body" id="rbDescBody">What lands in-engine. Clean skeleton, UE5 bone naming, IK helpers for retargeting, weights intact. No manual fixups after import — this is the payload.</div>
+      </div>
+      <div class="rb-nav">
+        <button class="rb-btn rb-active" data-slide="0">01</button>
+        <button class="rb-btn" data-slide="1">02</button>
+        <button class="rb-btn" data-slide="2">03</button>
+        <button class="rb-btn" data-slide="3">04</button>
+        <button class="rb-btn" data-slide="4">05</button>
+      </div>
+    </div>
+    <div class="rb-progress">
+      <div class="rb-progress-fill" id="rbFill" style="width:20%"></div>
+    </div>
+  </div>
+
+  <div class="included-grid reveal">
+    <div class="inc-group">
+      <div class="inc-label">Pipeline</div>
+      <ul class="inc-list">
+        <li>One-click Build + Bake All</li>
+        <li>Rigify, Mixamo, and custom rig support (auto-detected)</li>
+        <li>Export rig generated with clean matrices, not duplicated</li>
+        <li>Weighted bone protection</li>
+        <li>Multi-mesh binding at rest pose</li>
+        <li>Action auto-discovery across all .blend data</li>
+        <li>Spine sub-segment detection and merge</li>
+        <li>Pipeline checkpoint with failure reporting</li>
+      </ul>
+    </div>
+    <div class="inc-group">
+      <div class="inc-label">Export</div>
+      <ul class="inc-list">
+        <li>Custom forked FBX exporter (6 files, permanent patches)</li>
+        <li>glTF 2.0 (.glb) for Godot and Unity</li>
+        <li>Content modes: Full, Mesh Only, Animation Only, Split</li>
+        <li>Profiles for UE5, UE4, Unity, Godot, Custom</li>
+        <li>Automatic bone naming with collision detection</li>
+        <li>IK bone creation, root motion, shape key export</li>
+        <li>Batch export (one file per action)</li>
+        <li>Attachment toggles for per-export control</li>
+      </ul>
+    </div>
+    <div class="inc-group">
+      <div class="inc-label">The Heatmap</div>
+      <ul class="inc-list">
+        <li>Stress test with 21 extreme poses</li>
+        <li>5 quality maps: stretch, influence, dominance, symmetry, velocity</li>
+        <li>Joint Preview with live heatmap while you paint</li>
+        <li>Hold Pose with next/prev navigation</li>
+        <li>Select Critical Vertices</li>
+        <li>Calibrate thresholds per-pose</li>
+        <li>Non-humanoid auto-pose generation</li>
+        <li>Works on any rig without a game rig</li>
+      </ul>
+    </div>
+    <div class="inc-group">
+      <div class="inc-label">Weight Tools</div>
+      <ul class="inc-list">
+        <li>Fix All Joints with auto-revert if worse</li>
+        <li>Generate Base Weights (heat diffusion + twist gradients)</li>
+        <li>Per-vertex optimization from stress scores</li>
+        <li>Joint recipes (apply and save)</li>
+        <li>Normalize, cap influences, strip micro-weights</li>
+        <li>Weight audit with one-click fix</li>
+        <li>Vertex Inspector with weight snapshots</li>
+      </ul>
+    </div>
+    <div class="inc-group">
+      <div class="inc-label">Toolbox</div>
+      <ul class="inc-list">
+        <li>24 diagnostic validators</li>
+        <li>LOD generation with auto-decimation</li>
+        <li>Append Manny or Quinn reference skeletons</li>
+        <li>Setup presets (save and reload configs)</li>
+        <li>Operation log with timestamps</li>
+        <li>Recovery Report after any failure</li>
+        <li>Blender 4.2 – 5.1+ compatible</li>
+      </ul>
+    </div>
+  </div>
+</section>
+</div>
+
+<div class="orn"><div class="orn-gem"></div></div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     08 — PRICING
+     ═══════════════════════════════════════════════════════════ -->
+<div class="page">
+<section id="pricing" style="scroll-margin-top:52px;">
+  <div class="sec-label"><span class="sn">08</span> Get it</div>
+  <div class="pricing-layout reveal">
+    <div class="price-card panel">
+      <div class="price-amount"><sup>$</sup>49</div>
+      <div class="price-note">One-time purchase · All engines · Blender 4.2 – 5.1+</div>
+      <ul class="price-includes">
+        <li>Custom FBX exporter with permanent engine-aware fixes</li>
+        <li>One-click pipeline: generate, bind, bake, export</li>
+        <li>Rigify, Mixamo, and custom rig support</li>
+        <li>Stress test with 21 poses and heatmap overlay</li>
+        <li>5 quality maps and Joint Preview for weight painting</li>
+        <li>24 diagnostic validators</li>
+        <li>Multi-mesh export with automatic prop discovery</li>
+        <li>glTF support, batch export, LOD generation</li>
+        <li>UE5, UE4, Unity, Godot, and custom engine profiles</li>
+      </ul>
+      <a href="https://superhivemarket.com/products/rigbridge" target="_blank" class="btn-primary btn-block">Buy RigBridge — $49</a>
+      <p class="price-disclaimer">Direct support from me. Updates included. I'll fix any issue that gets reported.</p>
+    </div>
+    <div>
+      <div class="price-markets">
+        <div class="mkt-row">
+          <span class="mkt-name">Superhive</span>
+          <a href="https://superhivemarket.com/products/rigbridge" target="_blank" class="mkt-btn">Buy →</a>
+        </div>
+        <div class="mkt-row">
+          <span class="mkt-name">Gumroad</span>
+          <a href="https://kajinn.gumroad.com/l/rigbridge" target="_blank" class="mkt-btn">Buy →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+<div class="orn"><div class="orn-gem"></div></div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     09 — ABOUT
+     ═══════════════════════════════════════════════════════════ -->
+<div class="page">
+<section id="about" style="scroll-margin-top:52px;">
+  <div class="sec-label"><span class="sn">09</span> About</div>
+  <div class="about-layout reveal">
+    <div class="about-main panel">
+      <div class="about-name">Kajin</div>
+      <p>I started working in Blender in 2023. I never really had anything to show for it. I created some small stuff early but never anything I could truly showcase. My goal was to make a video fully in Blender. The project ended up too big in scope and I worked on it on and off for a couple of years, with long breaks in between (which I will hopefully finish in the future... lol). I always enjoyed creating stuff, and gaming has been my main hobby since I was a kid.</p>
+      <p>Eventually I started building a game. It's a roguelike action RPG built in UE5 with C++ from scratch. Run-based, seed-locked, multiple maps. The combat is hard. Enemies don't scale to you, ever. A knight that killed you on your first run will always be that strong. You just learn what to avoid and what you can take on. The world also remembers everything you do. If you attack a faction, they're going to have a problem with you later. Vendors, NPCs, they all react to how you played. Nothing resets inside a run. It's my first game and it's way too ambitious but honestly that's probably why I'm also the kind of person who would build a whole addon instead of just accepting that the export was broken.</p>
+      <div class="read-more-wrap">
+        <div class="read-more-content">
+          <p>The goal of the tool after was to make it so for my own game dev future I get a fast workflow (if nobody buys it atleast i have a something I'm proud off), instead of the manual option I get a working addon that makes the game rig with the animations and no issues, which effectively saves me time on each character I create for my game. Manually doing all this work would take a lot of time I would love to save, and it's just easier.</p>
+          <p>Anyways I'm yapping too much. Whatever this addon earns goes directly back into it. I'll fix any issue that gets reported and take time for community requests with promised support. The game I'm creating is the main project I'm working on, however, so supporting this addon supports the game development. I am available for contact at any of my socials.</p>
+        </div>
+        <button class="read-more-btn" onclick="var c=this.previousElementSibling;var wasOpen=c.classList.contains('open');c.classList.toggle('open');this.textContent=c.classList.contains('open')?'Show less ↑':'Read more ↓';if(!wasOpen){setTimeout(function(){var y=c.getBoundingClientRect().top+window.scrollY-60;window.scrollTo({top:y,behavior:'smooth'});},50);}else{document.getElementById('about').scrollIntoView({behavior:'smooth',block:'start'});}">Read more ↓</button>
+      </div>
+    </div>
+    <div class="about-right">
+      <div class="about-card panel">
+        <div class="ac-dot-row"><span class="ac-dot"></span><span class="ac-status">Currently building</span></div>
+        <h3>An action RPG.</h3>
+        <p>Currently making a game. Run-based, decisions that compound. Built in UE5 with a custom C++ architecture. Not ready to talk about it but updates will be coming when i have a trailer ready. This is my main project currently. Still very early though. RigBridge exists because this game needed it.</p>
+        <p class="about-sub">Follow me <a href="https://x.com/Kajjiin" target="_blank" class="inline-gold">@Kajin on X</a> for updates on any future projects.</p>
+      </div>
+      <div class="social-links">
+        <a href="https://github.com/Ka-ji-n" target="_blank" class="soc-link">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.744 0 .267.18.579.688.481C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+          Ka-ji-n<span class="soc-tag">GitHub</span>
+        </a>
+        <a href="https://x.com/Kajjiin" target="_blank" class="soc-link">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          @Kajin<span class="soc-tag">X / Twitter</span>
+        </a>
+        <a href="https://www.youtube.com/@kaj-in" target="_blank" class="soc-link">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+          kaj-in<span class="soc-tag">YouTube</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     REMEMBERED TEASER
+     ═══════════════════════════════════════════════════════════ -->
+<div class="r-tease">
+  <div class="r-tease-bg"></div>
+  <div class="r-tease-line"></div>
+  <div class="r-tease-inner">
+    <div class="r-tease-label">Something else is being built.</div>
+    <div class="r-tease-title">
+      <div class="r-tease-slice">REMEMBERED</div>
+      <div class="r-tease-slice">REMEMBERED</div>
+      <div class="r-tease-slice">REMEMBERED</div>
+      <div class="r-tease-slice">REMEMBERED</div>
+      <div class="r-tease-slice">REMEMBERED</div>
+    </div>
+    <div class="r-tease-sub">The game RigBridge was built for. In production.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════════════════════ -->
+<footer>
+  <div class="foot-bar">
+    <div class="foot-id"><span>Kajin</span> · RigBridge <span>v1.0.0</span> · Blender 4.2 – 5.1+ · © 2026</div>
+    <div class="foot-links">
+      <a href="https://github.com/Ka-ji-n" target="_blank">GitHub</a>
+      <a href="https://x.com/Kajjiin" target="_blank">X</a>
+      <a href="https://www.youtube.com/@kaj-in" target="_blank">YouTube</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SCRIPTS
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+// ── Heatmap video fallback ────────────────────────────────────
+(function(){
+  var ph = document.getElementById('heatmapPh');
+  if(!ph) return;
+  var vid = ph.parentElement.querySelector('video');
+  if(!vid) return;
+  var src = vid.querySelector('source');
+  if(!src || !src.getAttribute('src')){
+    ph.style.display='flex'; return;
+  }
+  vid.addEventListener('error', function(){ ph.style.display='flex'; });
+  if(src) src.addEventListener('error', function(){ ph.style.display='flex'; });
+  setTimeout(function(){ if(vid.readyState < 2 && vid.networkState === 3) ph.style.display='flex'; }, 5000);
+})();
+
+// ── Heatmap video expand toggle ─────────────────────────────
+var _heatmapExpanded = false;
+function toggleHeatmapExpand(){
+  _heatmapExpanded = !_heatmapExpanded;
+  var grid = document.getElementById('heatmapGrid');
+  var text = document.getElementById('heatmapText');
+  var wrap = document.getElementById('heatmapVideoWrap');
+  var iconExpand = document.getElementById('heatmapExpandIcon');
+  var iconShrink = document.getElementById('heatmapShrinkIcon');
+  if(_heatmapExpanded){
+    grid.style.gridTemplateColumns = '1fr 0fr';
+    grid.style.gap = '0px';
+    wrap.style.aspectRatio = '16/9';
+    text.style.opacity = '0';
+    text.style.maxHeight = '0';
+    text.style.padding = '0';
+    iconExpand.style.display = 'none';
+    iconShrink.style.display = 'block';
+  } else {
+    grid.style.gridTemplateColumns = '1fr 1fr';
+    grid.style.gap = '20px';
+    wrap.style.aspectRatio = '4/3';
+    text.style.opacity = '1';
+    text.style.maxHeight = '600px';
+    text.style.padding = '';
+    iconExpand.style.display = 'block';
+    iconShrink.style.display = 'none';
+  }
+}
+
+// ── Dev note toggle ──────────────────────────────────────────
+(function(){
+  var note = document.getElementById('devNote');
+  if(!note) return;
+  note.addEventListener('click', function(){
+    this.classList.toggle('open');
+  });
+})();
+
+// ── Screenshot carousel ──────────────────────────────────────
+(function(){
+  var track   = document.getElementById('rbTrack');
+  var fill    = document.getElementById('rbFill');
+  var title   = document.getElementById('rbDescTitle');
+  var desc    = document.getElementById('rbDescBody');
+  var btns    = document.querySelectorAll('.rb-btn');
+  if(!track) return;
+
+  var slides = [
+    { title:'In Unreal',
+      body:'What lands in-engine. Clean skeleton, UE5 bone naming, IK helpers for retargeting, weights intact. No manual fixups after import — this is the payload.' },
+    { title:'Pipeline &amp; Setup',
+      body:'Assign a rig, assign a mesh, pick an engine. Build + Bake + Export runs in one click. Humanoid or Quadruped profiles target UE5, UE4, Unity, Godot, or a fully custom setup.' },
+    { title:'Animation &amp; Baking',
+      body:'Every action baked from controls down to deform bones. NLA-aware, per-action toggles, shape keys preserved. Export one FBX per action or bundle them all.' },
+    { title:'Attachments',
+      body:'Weapons, armor, and props parented to bones are auto-discovered and exported with the character. Toggle each one. Preview the export and reimport-test before you ship.' },
+    { title:'Any Rig',
+      body:'Not just humanoids. Quadruped profile handles wolves, felines, and other creatures. Same one-click pipeline: Rigify metarig in, clean game rig out, FBX straight to engine.' }
+  ];
+
+  var current = 0;
+  var total   = slides.length;
+  var animating = false;
+
+  function goTo(idx) {
+    if(animating || idx === current) return;
+    animating = true;
+    current = idx;
+
+    track.style.transform = 'translateX(-' + (current * 100) + '%)';
+
+    fill.style.width = ((current + 1) / total * 100) + '%';
+    fill.classList.toggle('full', current === total - 1);
+
+    btns.forEach(function(b){ b.classList.remove('rb-active'); });
+    btns[current].classList.add('rb-active');
+
+    title.style.opacity = '0';
+    desc.style.opacity  = '0';
+    setTimeout(function(){
+      title.innerHTML = slides[current].title;
+      desc.innerHTML  = slides[current].body;
+      title.style.transition = 'opacity .3s';
+      desc.style.transition  = 'opacity .3s';
+      title.style.opacity = '1';
+      desc.style.opacity  = '1';
+      animating = false;
+    }, 200);
+  }
+
+  btns.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      goTo(parseInt(this.dataset.slide));
+    });
+  });
+
+  var touchStartX = 0;
+  track.addEventListener('touchstart', function(e){ touchStartX = e.touches[0].clientX; }, {passive:true});
+  track.addEventListener('touchend',   function(e){
+    var dx = e.changedTouches[0].clientX - touchStartX;
+    if(Math.abs(dx) > 40) goTo(dx < 0 ? Math.min(current+1,total-1) : Math.max(current-1,0));
+  });
+
+  var expandBtn = document.getElementById('rbExpandBtn');
+  var viewer    = document.querySelector('.rb-viewer');
+
+  expandBtn.addEventListener('click', function(){
+    var expanded = viewer.classList.toggle('expanded');
+    expandBtn.textContent = expanded ? '⤡ collapse' : '⤢ expand';
+  });
+})();
+
+// ── Pipeline step hover ──────────────────────────────────────
+(function(){
+  var pipeline = document.getElementById('pipelineSteps');
+  if(!pipeline) return;
+  var steps = Array.from(pipeline.querySelectorAll('.ps'));
+  var t = null;
+
+  function setActive(s){
+    clearTimeout(t);
+    steps.forEach(function(p){ p.classList.remove('ps-active','ps-inactive'); p.classList.add(p===s?'ps-active':'ps-inactive'); });
+  }
+  function clearAll(){
+    t = setTimeout(function(){ steps.forEach(function(p){ p.classList.remove('ps-active','ps-inactive'); }); }, 80);
+  }
+
+  steps.forEach(function(s){
+    s.addEventListener('mouseenter', function(){ setActive(s); });
+    s.addEventListener('mouseleave', clearAll);
+  });
+  pipeline.addEventListener('mouseleave', function(){ clearTimeout(t); steps.forEach(function(p){ p.classList.remove('ps-active','ps-inactive'); }); });
+
+  var btn = document.getElementById('pipelineOneClick');
+  if(btn){
+    var running = false;
+    btn.addEventListener('click', function(){
+      if(running) return;
+      running = true;
+      btn.classList.add('running');
+      steps.forEach(function(p){ p.classList.remove('ps-active','ps-inactive','ps-running','ps-done'); });
+
+      var stepDuration = 480, pauseBetween = 80, delay = 0;
+      steps.slice(0,3).forEach(function(step, i){
+        setTimeout(function(){
+          if(i>0) steps[i-1].classList.replace('ps-running','ps-done');
+          step.classList.add('ps-running');
+          if(i===2){
+            setTimeout(function(){
+              step.classList.replace('ps-running','ps-done');
+              setTimeout(function(){
+                steps.forEach(function(p){ p.classList.remove('ps-running','ps-done'); });
+                btn.classList.remove('running');
+                running = false;
+              }, 600);
+            }, stepDuration);
+          }
+        }, delay);
+        delay += stepDuration + pauseBetween;
+      });
+    });
+  }
+})();
+
+// ── Wolf panel expand/collapse ───────────────────────────────
+(function(){
+  var panels=document.querySelectorAll('.ws');
+  if(panels.length<2)return;
+
+  panels.forEach(function(p){
+    p.addEventListener('click',function(){
+      this.classList.toggle('open');
+    });
+  });
+})();
+
+// ── Video comparison slider ──────────────────────────────────
+(function(){
+  var wrap = document.getElementById('vsWrap');
+  var vl   = document.getElementById('vLeft');
+  var vr   = document.getElementById('vRight');
+  var div  = document.getElementById('vsDivider');
+  var hdl  = document.getElementById('vsHandle');
+  if(!wrap) return;
+
+  var pct = 50;
+  var dragging = false;
+
+  var lblL = document.getElementById('vsLabelLeft');
+  var lblR = document.getElementById('vsLabelRight');
+
+  function setPos(p){
+    pct = Math.max(0, Math.min(100, p));
+    var r = (100 - pct).toFixed(2);
+    var l = pct.toFixed(2);
+    vl.style.clipPath = 'inset(0 '+r+'% 0 0)';
+    vr.style.clipPath = 'inset(0 0 0 '+l+'%)';
+    div.style.left = l + '%';
+    hdl.style.left = l + '%';
+    if(lblL) lblL.style.opacity = pct < 18 ? '0' : '1';
+    if(lblR) lblR.style.opacity = pct > 82 ? '0' : '1';
+  }
+
+  setPos(50);
+
+  function getX(e){ return e.touches ? e.touches[0].clientX : e.clientX; }
+
+  function onMove(e){
+    if(!dragging) return;
+    var rect = wrap.getBoundingClientRect();
+    setPos(((getX(e) - rect.left) / rect.width) * 100);
+  }
+
+  function nearDivider(e){
+    var rect = wrap.getBoundingClientRect();
+    var divX = rect.left + rect.width * pct / 100;
+    return Math.abs(getX(e) - divX) < 24;
+  }
+
+  wrap.addEventListener('mousedown', function(e){
+    if(nearDivider(e)){ dragging=true; onMove(e); e.preventDefault(); }
+  });
+  wrap.addEventListener('touchstart', function(e){
+    if(nearDivider(e)){ dragging=true; onMove(e); }
+  },{passive:true});
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('touchmove', onMove, {passive:true});
+  window.addEventListener('mouseup',  function(){ setTimeout(function(){ dragging=false; }, 0); });
+  window.addEventListener('touchend', function(){ setTimeout(function(){ dragging=false; }, 0); });
+
+  function getSrc(vid){
+    var s = vid && vid.querySelector('source');
+    return s ? (s.getAttribute('src') || '').trim() : '';
+  }
+
+  function showPh(phId){ var p=document.getElementById(phId); if(p) p.style.display='flex'; }
+  function hidePh(phId){ var p=document.getElementById(phId); if(p) p.style.display='none'; }
+
+  function setupVideo(vid, phId, onReady){
+    var src = getSrc(vid);
+    if(!src){ showPh(phId); return; }
+
+    vid.addEventListener('canplay', function(){ hidePh(phId); vid.play().catch(function(){}); onReady(); }, {once:true});
+    vid.addEventListener('error', function(){ showPh(phId); });
+    var srcEl = vid.querySelector('source');
+    if(srcEl) srcEl.addEventListener('error', function(){ showPh(phId); });
+    setTimeout(function(){ if(vid.readyState < 2) showPh(phId); }, 8000);
+  }
+
+  setupVideo(vl, 'phLeft', function(){});
+  setupVideo(vr, 'phRight', function(){
+    setPos(50);
+    if(div) div.style.display='';
+    if(hdl) hdl.style.display='';
+  });
+
+  var rightSrc = getSrc(vr);
+  if(!rightSrc){
+    vl.style.clipPath = 'none';
+    if(div) div.style.display='none';
+    if(hdl) hdl.style.display='none';
+    if(lblR) lblR.style.display='none';
+    if(lblL) lblL.style.display='none';
+  }
+
+  // ── PLAYBACK CONTROLS ──────────────────────────────────────
+  var scrubber  = document.getElementById('vsScrubber');
+  var fill      = document.getElementById('vsFill');
+  var pauseHint = document.getElementById('vsPauseHint');
+  var isPaused  = false;
+  var scrubbing = false;
+
+  var hintTimer = null;
+  function setPaused(p){
+    isPaused = p;
+    if(isPaused){
+      vl.pause(); vr.pause();
+      if(pauseHint) pauseHint.textContent = '▶ PLAY';
+      if(wrap) wrap.classList.add('paused');
+    } else {
+      vl.play().catch(function(){}); vr.play().catch(function(){});
+      if(pauseHint) pauseHint.textContent = '❙❙ PAUSE';
+      if(wrap) wrap.classList.remove('paused');
+    }
+    if(pauseHint){
+      clearTimeout(hintTimer);
+      pauseHint.style.opacity = '1';
+      hintTimer = setTimeout(function(){ pauseHint.style.opacity = '0'; }, 1200);
+    }
+  }
+
+  wrap.addEventListener('click', function(e){
+    if(dragging) return;
+    setPaused(!isPaused);
+  });
+
+  function scrubTo(e){
+    var rect = scrubber.getBoundingClientRect();
+    var x = e.touches ? e.touches[0].clientX : e.clientX;
+    var p = Math.max(0, Math.min(1, (x - rect.left) / rect.width));
+    var dur = vl.duration || 0;
+    if(!dur) return;
+    var t = p * dur;
+    vl.currentTime = t; vr.currentTime = t;
+    if(fill) fill.style.width = (p*100).toFixed(2)+'%';
+  }
+
+  if(scrubber){
+    scrubber.addEventListener('mousedown',  function(e){ scrubbing=true; scrubTo(e); });
+    scrubber.addEventListener('touchstart', function(e){ scrubbing=true; scrubTo(e); },{passive:true});
+  }
+  window.addEventListener('mousemove', function(e){ if(scrubbing) scrubTo(e); });
+  window.addEventListener('touchmove', function(e){ if(scrubbing) scrubTo(e); },{passive:true});
+  window.addEventListener('mouseup',   function(){ scrubbing=false; });
+  window.addEventListener('touchend',  function(){ scrubbing=false; });
+
+  vl.addEventListener('timeupdate', function(){
+    if(!scrubbing && fill && vl.duration)
+      fill.style.width = (vl.currentTime/vl.duration*100).toFixed(2)+'%';
+    if(vr.readyState >= 2 && Math.abs(vl.currentTime - vr.currentTime) > 0.15)
+      vr.currentTime = vl.currentTime;
+  });
+})();
+
+// ── Scroll progress bar ─────────────────────────────────────
+(function(){
+  var bar = document.getElementById('scrollProgress');
+  if(!bar) return;
+  window.addEventListener('scroll', function(){
+    var h = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.width = (h > 0 ? (window.scrollY / h * 100) : 0) + '%';
+  }, {passive:true});
+})();
+
+// ── Active nav highlighting ─────────────────────────────────
+(function(){
+  var links = document.querySelectorAll('.nav-links a');
+  var map = {};
+  links.forEach(function(a){
+    var href = a.getAttribute('href');
+    if(href && href.charAt(0) === '#' && href.length > 1) map[href.slice(1)] = a;
+  });
+  var ids = Object.keys(map);
+  if(!ids.length) return;
+
+  var observer = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){
+        links.forEach(function(a){ a.classList.remove('nav-active'); });
+        var a = map[entry.target.id];
+        if(a) a.classList.add('nav-active');
+      }
+    });
+  }, { rootMargin:'-52px 0px -60% 0px', threshold:0 });
+
+  ids.forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) observer.observe(el);
+  });
+})();
+
+// ── Scroll-reveal observer ──────────────────────────────────
+(function(){
+  var els = document.querySelectorAll('.reveal');
+  if(!els.length) return;
+  var observer = new IntersectionObserver(function(entries, obs){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){
+        entry.target.classList.add('revealed');
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { threshold:0.1 });
+  els.forEach(function(el){ observer.observe(el); });
+})();
+</script>
+
+</body>
+</html>
